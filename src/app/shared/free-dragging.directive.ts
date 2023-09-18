@@ -69,7 +69,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
     const maxBoundX =
       minBoundX +
-      this.draggingBoundaryElement.offsetWidth -
+      this.draggingBoundaryElement.offsetWidth -10 -
       this.element.offsetWidth;
     const maxBoundY =
       minBoundY +
