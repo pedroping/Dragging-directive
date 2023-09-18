@@ -25,14 +25,14 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   handleElement: HTMLElement;
 
-  private readonly DEFAULT_DRAGGING_BOUNDARY_QUERY = "body";
+  private readonly DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
   @Input() boundaryQuery = this.DEFAULT_DRAGGING_BOUNDARY_QUERY;
   draggingBoundaryElement: HTMLElement | HTMLBodyElement;
 
   constructor(
     private elementRef: ElementRef,
     @Inject(DOCUMENT) private document: any
-  ) {}
+  ) { }
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = (this.document as Document).querySelector(
@@ -90,9 +90,21 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         currentX = Math.max(minBoundX, Math.min(x, maxBoundX));
         currentY = Math.max(minBoundY, Math.min(y, maxBoundY));
 
+        console.log(currentY, window.innerHeight);
+
         this.element.style.transform =
           "translate3d(" + currentX + "px, " + currentY + "px, 0)";
+
+        if (this.element.offsetHeight + currentY >= window.innerHeight) {
+          this.draggingBoundaryElement.scrollTop += 3
+
+          this.element.style.transform =
+            "translate3d(" + currentX + "px, " + (currentY + 80) + "px, 0)";
+        }
+
       });
+
+
     });
 
     const dragEndSub = dragEnd$.subscribe(() => {

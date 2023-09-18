@@ -105,5 +105,8 @@
       }
     }
   },
-  "defaultProject": "angular-free-dragging"
+  "defaultProject": "angular-free-dragging",
+  "cli": {
+    "analytics": false
+  }
 }
