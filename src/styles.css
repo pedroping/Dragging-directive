@@ -6,5 +6,5 @@ body {
 
 html,
 body {
-  height: 200vh;
+  height: calc(100% - 8px);
 }
