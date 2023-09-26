@@ -69,19 +69,21 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
     let dragSub: Subscription;
 
-    const minBoundX = this.draggingBoundaryElement.offsetLeft;
-    const minBoundY = this.draggingBoundaryElement.offsetTop;
-
-    const maxBoundX =
-      minBoundX +
-      this.draggingBoundaryElement.offsetWidth - 10 -
-      this.element.offsetWidth;
-    const maxBoundY =
-      minBoundY +
-      this.draggingBoundaryElement.offsetHeight - 60 -
-      this.element.offsetHeight;
 
     const dragStartSub = dragStart$.subscribe((event: MouseEvent) => {
+
+      const minBoundX = this.draggingBoundaryElement.offsetLeft;
+      const minBoundY = this.draggingBoundaryElement.offsetTop;
+
+      const maxBoundX =
+        minBoundX +
+        this.draggingBoundaryElement.offsetWidth - 10 -
+        this.element.offsetWidth;
+      const maxBoundY =
+        minBoundY +
+        this.draggingBoundaryElement.offsetHeight - 60 -
+        this.element.offsetHeight;
+
       this.stopTaking$.next()
       initialX = event.clientX - currentX;
       initialY = event.clientY - currentY;
@@ -112,10 +114,10 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       }
     });
 
-    const resizeSub = resize$.pipe(distinctUntilChanged((prev, curr) => prev === curr)).subscribe((values) => {
+    const resizeSub = resize$.pipe(distinctUntilChanged((prev, curr) => prev.height === curr.height && prev.width === curr.width)).subscribe((values) => {
       console.log(values);
       console.log(this.element.offsetWidth, this.element.offsetHeight);
-      
+
     })
 
     const config = { attributes: true, childList: true, subtree: true };
