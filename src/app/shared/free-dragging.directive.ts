@@ -115,8 +115,20 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     });
 
     const resizeSub = resize$.pipe(distinctUntilChanged((prev, curr) => prev.height === curr.height && prev.width === curr.width)).subscribe((values) => {
-      console.log(values);
-      console.log(this.element.offsetWidth, this.element.offsetHeight);
+
+      const { x, y } = this.getTransformValues(this.element.style.transform)
+
+      const yMultiplier = y > 0 ? 1 : -1;
+
+      console.log('Y', y, 'Height', this.element.offsetHeight, 'yMultiplier', yMultiplier, this.element.style.transform);
+
+      if (y + this.element.offsetHeight > window.innerHeight - 60) {
+        const newY = ((window.innerHeight - 60) - this.element.offsetHeight) + 10
+        currentX = x
+        currentY = newY
+        this.element.style.transform =
+          "translate3d(" + currentX + "px, " + currentY + "px, 0)";
+      }
 
     })
 
@@ -146,5 +158,16 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((s) => s?.unsubscribe());
+  }
+
+  getTransformValues(transform: string) {
+    if (!transform) return { x: -1, y: -1 }
+    const splitedLabel = transform.split('(')[1].replace(')', '');
+    const splitedValues = splitedLabel
+      .replace(',', '')
+      .split(' ')
+      .map((value) => +value.replace(',', '').replace('px', ''));
+
+    return { x: splitedValues[0], y: splitedValues[1] };
   }
 }
