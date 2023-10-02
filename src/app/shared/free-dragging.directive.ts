@@ -61,6 +61,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
     const resizeSubject$ = new Subject<{ height: string, width: string }>()
     const resize$ = resizeSubject$.asObservable().pipe(distinctUntilChanged((prev, curr) => prev === curr))
+    const windowResize$ = fromEvent(window, 'resize')
 
     let initialX: number,
       initialY: number,
@@ -117,20 +118,30 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     const resizeSub = resize$.pipe(distinctUntilChanged((prev, curr) => prev.height === curr.height && prev.width === curr.width)).subscribe((values) => {
 
       const { x, y } = this.getTransformValues(this.element.style.transform)
-
-      const yMultiplier = y > 0 ? 1 : -1;
-
-      console.log('Y', y, 'Height', this.element.offsetHeight, 'yMultiplier', yMultiplier, this.element.style.transform);
+      currentX = x
+      currentY = y
 
       if (y + this.element.offsetHeight > window.innerHeight - 60) {
         const newY = ((window.innerHeight - 60) - this.element.offsetHeight) + 10
-        currentX = x
         currentY = newY
-        this.element.style.transform =
-          "translate3d(" + currentX + "px, " + currentY + "px, 0)";
       }
 
+      if (x + this.element.offsetWidth > window.innerWidth - 10) {
+        const newX = ((window.innerWidth) - this.element.offsetWidth)
+        currentX = newX
+      }
+
+      this.element.style.transform =
+        "translate3d(" + currentX + "px, " + currentY + "px, 0)";
+
     })
+
+    const windowResizeSub = windowResize$.subscribe(() => {
+      console.log('Window resize');
+
+    })
+
+
 
     const config = { attributes: true, childList: true, subtree: true };
 
@@ -147,7 +158,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       dragStartSub,
       dragSub,
       dragEndSub,
-      resizeSub
+      resizeSub,
+      windowResizeSub
     ]);
   }
 
