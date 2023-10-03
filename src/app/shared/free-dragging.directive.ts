@@ -20,19 +20,16 @@ export interface ElementSizes {
   selector: "[appFreeDragging]",
 })
 export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
+  private readonly DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
   private element: HTMLElement;
-
   private subscriptions: Subscription[] = [];
 
   @ContentChild(FreeDraggingHandleDirective)
   handle: FreeDraggingHandleDirective;
+  @Input() boundaryQuery = this.DEFAULT_DRAGGING_BOUNDARY_QUERY;
 
   handleElement: HTMLElement;
-
-  private readonly DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
-  @Input() boundaryQuery = this.DEFAULT_DRAGGING_BOUNDARY_QUERY;
   draggingBoundaryElement: HTMLElement | HTMLBodyElement;
-
   stopTaking$ = new Subject<void>();
 
   constructor(
@@ -127,7 +124,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
             prev.height === curr.height && prev.width === curr.width
         )
       )
-      .subscribe((values) => {
+      .subscribe(() => {
         const { x, y } = this.getTransformValues(this.element.style.transform);
         currentX = x;
         currentY = y;
@@ -147,7 +144,13 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       });
 
     const windowResizeSub = windowResize$.subscribe(() => {
-      console.log("Window resize");
+      if (this.element.offsetWidth > window.innerWidth) {
+        this.element.style.width = window.innerWidth + "px";
+      }
+
+      if (this.element.offsetHeight > window.innerHeight - 50) {
+        this.element.style.height = window.innerWidth - 50 + "px";
+      }
     });
 
     const config = { attributes: true, childList: true, subtree: true };
