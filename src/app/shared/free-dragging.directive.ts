@@ -36,13 +36,13 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   constructor(
     private elementRef: ElementRef,
-    @Inject(DOCUMENT) private document: any
   ) { }
 
   ngAfterViewInit(): void {
-    this.draggingBoundaryElement = (this.document as Document).querySelector(
+    this.draggingBoundaryElement = document.querySelector(
       this.boundaryQuery
     );
+
     if (!this.draggingBoundaryElement) {
       throw new Error(
         "Couldn't find any element with query: " + this.boundaryQuery
@@ -57,8 +57,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   initDrag(): void {
     const dragStart$ = fromEvent<MouseEvent>(this.handleElement, "mousedown");
-    const dragEnd$ = fromEvent<MouseEvent>(this.document, "mouseup");
-    const drag$ = fromEvent<MouseEvent>(this.document, "mousemove").pipe(
+    const dragEnd$ = fromEvent<MouseEvent>(document, "mouseup");
+    const drag$ = fromEvent<MouseEvent>(document, "mousemove").pipe(
       takeUntil(dragEnd$)
     );
 
