@@ -18,6 +18,7 @@ export interface ElementSizes {
 }
 @Directive({
   selector: "[appFreeDragging]",
+  exportAs: 'appFreeDragging'
 })
 export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   private readonly DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
@@ -191,5 +192,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       .map((value) => +value.replace(",", "").replace("px", ""));
 
     return { x: splitedValues[0], y: splitedValues[1] };
+  }
+
+  setFullSize() {
+    this.element.style.width = window.innerWidth + "px";
+    this.element.style.height = window.innerWidth - 50 + "px";
+
+    this.element.style.transform = "translate3d(" + 0 + "px, " + 0 + "px, 0)";
   }
 }
