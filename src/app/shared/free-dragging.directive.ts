@@ -32,11 +32,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   handleElement: HTMLElement;
   draggingBoundaryElement: HTMLElement | HTMLBodyElement;
   stopTaking$ = new Subject<void>();
+  isOnFullScreen = false
 
   constructor(
     private elementRef: ElementRef,
     @Inject(DOCUMENT) private document: any
-  ) {}
+  ) { }
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = (this.document as Document).querySelector(
@@ -129,6 +130,10 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         const { x, y } = this.getTransformValues(this.element.style.transform);
         currentX = x;
         currentY = y;
+        console.log(this.element.offsetWidth, window.innerWidth, this.element.offsetHeight, window.innerHeight - 50);
+
+        if (this.element.offsetWidth != window.innerWidth || this.element.offsetHeight != window.innerHeight - 50)
+          this.isOnFullScreen = false
 
         if (y + this.element.offsetHeight > window.innerHeight - 60) {
           const newY = window.innerHeight - 60 - this.element.offsetHeight + 10;
@@ -145,12 +150,17 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       });
 
     const windowResizeSub = windowResize$.subscribe(() => {
+      if (this.isOnFullScreen) {
+        this.setFullSize()
+        return
+      };
+
       if (this.element.offsetWidth > window.innerWidth) {
         this.element.style.width = window.innerWidth + "px";
       }
 
       if (this.element.offsetHeight > window.innerHeight - 50) {
-        this.element.style.height = window.innerWidth - 50 + "px";
+        this.element.style.height = window.innerHeight - 50 + "px";
       }
     });
 
@@ -195,8 +205,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   }
 
   setFullSize() {
+    this.isOnFullScreen = true
     this.element.style.width = window.innerWidth + "px";
-    this.element.style.height = window.innerWidth - 50 + "px";
+    this.element.style.height = window.innerHeight - 50 + "px";
 
     this.element.style.transform = "translate3d(" + 0 + "px, " + 0 + "px, 0)";
   }
