@@ -12,6 +12,10 @@ import { fromEvent, Subject, Subscription, timer } from "rxjs";
 import { distinctUntilChanged, takeUntil } from "rxjs/operators";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
 
+export interface ElementSizes {
+  width: string;
+  height: string;
+}
 @Directive({
   selector: "[appFreeDragging]",
 })
@@ -29,12 +33,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   @Input() boundaryQuery = this.DEFAULT_DRAGGING_BOUNDARY_QUERY;
   draggingBoundaryElement: HTMLElement | HTMLBodyElement;
 
-  stopTaking$ = new Subject<void>()
+  stopTaking$ = new Subject<void>();
 
   constructor(
     private elementRef: ElementRef,
     @Inject(DOCUMENT) private document: any
-  ) { }
+  ) {}
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = (this.document as Document).querySelector(
@@ -59,9 +63,11 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       takeUntil(dragEnd$)
     );
 
-    const resizeSubject$ = new Subject<{ height: string, width: string }>()
-    const resize$ = resizeSubject$.asObservable().pipe(distinctUntilChanged((prev, curr) => prev === curr))
-    const windowResize$ = fromEvent(window, 'resize')
+    const resizeSubject$ = new Subject<{ height: string; width: string }>();
+    const resize$ = resizeSubject$
+      .asObservable()
+      .pipe(distinctUntilChanged((prev, curr) => prev === curr));
+    const windowResize$ = fromEvent(window, "resize");
 
     let initialX: number,
       initialY: number,
@@ -70,9 +76,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
     let dragSub: Subscription;
 
-
     const dragStartSub = dragStart$.subscribe((event: MouseEvent) => {
-
       const minBoundX = this.draggingBoundaryElement.offsetLeft;
       const minBoundY = this.draggingBoundaryElement.offsetTop;
 
@@ -82,16 +86,17 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         this.element.offsetWidth;
       const maxBoundY =
         minBoundY +
-        this.draggingBoundaryElement.offsetHeight - 60 -
+        this.draggingBoundaryElement.offsetHeight -
+        60 -
         this.element.offsetHeight;
 
-      this.stopTaking$.next()
+      this.stopTaking$.next();
       initialX = event.clientX - currentX;
       initialY = event.clientY - currentY;
       this.element.classList.add("free-dragging");
 
       dragSub = drag$.subscribe((event: MouseEvent) => {
-        this.stopTaking$.next()
+        this.stopTaking$.next();
         event.preventDefault();
 
         const x = event.clientX - initialX;
@@ -108,64 +113,66 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     const dragEndSub = dragEnd$.subscribe(() => {
       initialX = currentX;
       initialY = currentY;
-      this.stopTaking$.next()
+      this.stopTaking$.next();
       this.element.classList.remove("free-dragging");
       if (dragSub) {
         dragSub.unsubscribe();
       }
     });
 
-    const resizeSub = resize$.pipe(distinctUntilChanged((prev, curr) => prev.height === curr.height && prev.width === curr.width)).subscribe((values) => {
+    const resizeSub = resize$
+      .pipe(
+        distinctUntilChanged(
+          (prev: ElementSizes, curr: ElementSizes) =>
+            prev.height === curr.height && prev.width === curr.width
+        )
+      )
+      .subscribe((values) => {
+        const { x, y } = this.getTransformValues(this.element.style.transform);
+        currentX = x;
+        currentY = y;
 
-      const { x, y } = this.getTransformValues(this.element.style.transform)
-      currentX = x
-      currentY = y
+        if (y + this.element.offsetHeight > window.innerHeight - 60) {
+          const newY = window.innerHeight - 60 - this.element.offsetHeight + 10;
+          currentY = newY;
+        }
 
-      if (y + this.element.offsetHeight > window.innerHeight - 60) {
-        const newY = ((window.innerHeight - 60) - this.element.offsetHeight) + 10
-        currentY = newY
-      }
+        if (x + this.element.offsetWidth > window.innerWidth - 10) {
+          const newX = window.innerWidth - this.element.offsetWidth;
+          currentX = newX;
+        }
 
-      if (x + this.element.offsetWidth > window.innerWidth - 10) {
-        const newX = ((window.innerWidth) - this.element.offsetWidth)
-        currentX = newX
-      }
-
-      this.element.style.transform =
-        "translate3d(" + currentX + "px, " + currentY + "px, 0)";
-
-    })
+        this.element.style.transform =
+          "translate3d(" + currentX + "px, " + currentY + "px, 0)";
+      });
 
     const windowResizeSub = windowResize$.subscribe(() => {
-      console.log('Window resize');
-
-    })
-
-
+      console.log("Window resize");
+    });
 
     const config = { attributes: true, childList: true, subtree: true };
 
     new MutationObserver((mutationList) => {
-      const width = this.elementRef.nativeElement.style.width
-      const height = this.elementRef.nativeElement.style.height
+      const width = this.elementRef.nativeElement.style.width;
+      const height = this.elementRef.nativeElement.style.height;
       resizeSubject$.next({
-        width: this.isSmallestThan200(width) ? '200px' : width,
-        height: this.isSmallestThan200(height) ? '200px' : height
-      })
-    }).observe(this.elementRef.nativeElement, config)
+        width: this.isSmallestThan200(width) ? "200px" : width,
+        height: this.isSmallestThan200(height) ? "200px" : height,
+      });
+    }).observe(this.elementRef.nativeElement, config);
 
     this.subscriptions.push.apply(this.subscriptions, [
       dragStartSub,
       dragSub,
       dragEndSub,
       resizeSub,
-      windowResizeSub
+      windowResizeSub,
     ]);
   }
 
   isSmallestThan200(value: string) {
-    const number = +value.replace('px', '')
-    return number < 200
+    const number = +value.replace("px", "");
+    return number < 200;
   }
 
   ngOnDestroy(): void {
@@ -173,12 +180,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   }
 
   getTransformValues(transform: string) {
-    if (!transform) return { x: -1, y: -1 }
-    const splitedLabel = transform.split('(')[1].replace(')', '');
+    if (!transform) return { x: -1, y: -1 };
+    const splitedLabel = transform.split("(")[1].replace(")", "");
     const splitedValues = splitedLabel
-      .replace(',', '')
-      .split(' ')
-      .map((value) => +value.replace(',', '').replace('px', ''));
+      .replace(",", "")
+      .split(" ")
+      .map((value) => +value.replace(",", "").replace("px", ""));
 
     return { x: splitedValues[0], y: splitedValues[1] };
   }
