@@ -4,7 +4,7 @@ import { Component } from "@angular/core";
   selector: "app-root",
   template: `
     <div class="boundary">
-      <div class="example-box" appFreeDragging (resize)="log()" #function="appFreeDragging">
+      <div class="example-box" appFreeDragging #function="appFreeDragging">
         I can only be dragged using the handle
 
         <div class="example-handle" appFreeDraggingHandle>
@@ -27,7 +27,7 @@ import { Component } from "@angular/core";
   styles: [
     `
       .example-box {
-        width: 200px;
+        width: 500px;
         height: 200px;
         min-width: 200px;
         min-height: 200px;
@@ -50,6 +50,7 @@ import { Component } from "@angular/core";
         transition: box-shadow 200ms cubic-bezier(0, 0, 0.2, 1);
         box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
           0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+        background-color: whitesmoke;
          
       }
 
@@ -73,7 +74,4 @@ import { Component } from "@angular/core";
 export class AppComponent {
   title = "angular-free-dragging";
 
-  log() {
-    console.log('Resize')
-  }
 }

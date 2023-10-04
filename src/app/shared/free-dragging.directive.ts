@@ -9,7 +9,7 @@ import {
   OnDestroy,
 } from "@angular/core";
 import { fromEvent, Subject, Subscription, timer } from "rxjs";
-import { distinctUntilChanged, takeUntil } from "rxjs/operators";
+import { distinctUntilChanged, take, takeUntil } from "rxjs/operators";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
 
 export interface ElementSizes {
@@ -56,17 +56,17 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   }
 
   initDrag(): void {
+    const resizeSubject$ = new Subject<{ height: string; width: string }>();
+    const windowResize$ = fromEvent(window, "resize");
     const dragStart$ = fromEvent<MouseEvent>(this.handleElement, "mousedown");
     const dragEnd$ = fromEvent<MouseEvent>(document, "mouseup");
     const drag$ = fromEvent<MouseEvent>(document, "mousemove").pipe(
       takeUntil(dragEnd$)
     );
 
-    const resizeSubject$ = new Subject<{ height: string; width: string }>();
     const resize$ = resizeSubject$
       .asObservable()
       .pipe(distinctUntilChanged((prev, curr) => prev === curr));
-    const windowResize$ = fromEvent(window, "resize");
 
     let initialX: number,
       initialY: number,
@@ -206,9 +206,18 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   setFullSize() {
     this.isOnFullScreen = true
-    this.element.style.width = window.innerWidth + "px";
-    this.element.style.height = window.innerHeight - 50 + "px";
+    this.element.style.transition = 'all .5s ease';
 
-    this.element.style.transform = "translate3d(" + 0 + "px, " + 0 + "px, 0)";
+    timer(1000).pipe(take(1)).subscribe(() => {
+      this.element.style.width = window.innerWidth + "px";
+      this.element.style.height = window.innerHeight - 50 + "px";
+      this.element.style.transform = "translate3d(" + 0 + "px, " + 0 + "px, 0)";
+
+      timer(1000).pipe(take(1)).subscribe(() => {
+        this.element.style.transition = 'none'
+      })
+
+    })
+
   }
 }
