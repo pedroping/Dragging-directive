@@ -215,11 +215,9 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
 
     timer(100).pipe(take(1)).subscribe(() => {
       this.element.style.transform = "translate3d(" + 0 + "px, " + 0 + "px, 0)";
+      this.element.style.width = window.innerWidth + "px";
+      this.element.style.height = window.innerHeight - 50 + "px";
 
-      timer(500).pipe(take(1)).subscribe(() => {
-        this.element.style.width = window.innerWidth + "px";
-        this.element.style.height = window.innerHeight - 50 + "px";
-      })
       timer(1000).pipe(take(1)).subscribe(() => {
         this.element.style.transition = 'none'
       })
