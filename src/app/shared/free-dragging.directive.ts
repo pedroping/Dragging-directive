@@ -4,7 +4,8 @@ import {
   Directive,
   ElementRef,
   Input,
-  OnDestroy
+  OnDestroy,
+  OnInit
 } from "@angular/core";
 import { Subject, Subscription, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, take, takeUntil } from "rxjs/operators";
@@ -18,7 +19,7 @@ export interface ElementSizes {
   selector: "[appFreeDragging]",
   exportAs: 'appFreeDragging'
 })
-export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
+export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
   private readonly DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
   private element: HTMLElement;
   private subscriptions: Subscription[] = [];
@@ -32,9 +33,15 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   stopTaking$ = new Subject<void>();
   isOnFullScreen = false
 
+  private _worker!: Worker
+
   constructor(
     private elementRef: ElementRef,
   ) { }
+
+  ngOnInit(): void {
+    this.setServiceWorker();
+  }
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(
@@ -188,6 +195,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((s) => s?.unsubscribe());
+    this._worker.terminate()
   }
 
   getTransformValues(transform: string) {
@@ -207,14 +215,23 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
     timer(100).pipe(take(1)).subscribe(() => {
       this.element.style.transform = "translate3d(" + 0 + "px, " + 0 + "px, 0)";
-      this.element.style.width = window.innerWidth + "px";
-      this.element.style.height = window.innerHeight - 50 + "px";
 
+      timer(500).pipe(take(1)).subscribe(() => {
+        this.element.style.width = window.innerWidth + "px";
+        this.element.style.height = window.innerHeight - 50 + "px";
+      })
       timer(1000).pipe(take(1)).subscribe(() => {
         this.element.style.transition = 'none'
       })
 
     })
+  }
 
+  setServiceWorker() {
+    this._worker = new Worker(new URL('../drag-calculator.worker', import.meta.url))
+    this._worker.postMessage('Hello World!!')
+    this._worker.onmessage = ({ data }) => {
+      console.log(data)
+    }
   }
 }
