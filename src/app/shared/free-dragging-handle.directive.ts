@@ -4,5 +4,5 @@ import { Directive, ElementRef } from "@angular/core";
   selector: "[appFreeDraggingHandle]",
 })
 export class FreeDraggingHandleDirective {
-  constructor(public elementRef: ElementRef<HTMLElement>) {}
+  constructor() { }
 }

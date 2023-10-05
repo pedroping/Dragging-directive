@@ -24,8 +24,8 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
   private element: HTMLElement;
   private subscriptions: Subscription[] = [];
 
-  @ContentChild(FreeDraggingHandleDirective)
-  handle: FreeDraggingHandleDirective;
+  @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
+  handle: ElementRef;
   @Input() boundaryQuery = this.DEFAULT_DRAGGING_BOUNDARY_QUERY;
 
   handleElement: HTMLElement;
@@ -55,7 +55,7 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.element = this.elementRef.nativeElement as HTMLElement;
       this.handleElement =
-        this.handle?.elementRef?.nativeElement || this.element;
+        this.handle?.nativeElement || this.element;
       this.initDrag();
     }
   }
@@ -229,7 +229,12 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
     this._worker = new Worker(new URL('../drag-calculator.worker', import.meta.url))
     this._worker.postMessage('Hello World!!')
     this._worker.onmessage = ({ data }) => {
-      console.log(data)
+      if (this.istanceofString(data))
+        console.log(data)
     }
+  }
+
+  istanceofString(data: unknown): data is string {
+    return !!data['substring']
   }
 }
