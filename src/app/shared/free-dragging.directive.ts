@@ -1,14 +1,12 @@
-import { DOCUMENT } from "@angular/common";
 import {
   AfterViewInit,
   ContentChild,
   Directive,
   ElementRef,
-  Inject,
   Input,
-  OnDestroy,
+  OnDestroy
 } from "@angular/core";
-import { fromEvent, Subject, Subscription, timer } from "rxjs";
+import { Subject, Subscription, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, take, takeUntil } from "rxjs/operators";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
 
@@ -130,7 +128,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         const { x, y } = this.getTransformValues(this.element.style.transform);
         currentX = x;
         currentY = y;
-        console.log(this.element.offsetWidth, window.innerWidth, this.element.offsetHeight, window.innerHeight - 50);
 
         if (this.element.offsetWidth != window.innerWidth || this.element.offsetHeight != window.innerHeight - 50)
           this.isOnFullScreen = false
