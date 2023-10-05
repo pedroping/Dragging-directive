@@ -208,10 +208,10 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     this.isOnFullScreen = true
     this.element.style.transition = 'all .5s ease';
 
-    timer(1000).pipe(take(1)).subscribe(() => {
+    timer(100).pipe(take(1)).subscribe(() => {
+      this.element.style.transform = "translate3d(" + 0 + "px, " + 0 + "px, 0)";
       this.element.style.width = window.innerWidth + "px";
       this.element.style.height = window.innerHeight - 50 + "px";
-      this.element.style.transform = "translate3d(" + 0 + "px, " + 0 + "px, 0)";
 
       timer(1000).pipe(take(1)).subscribe(() => {
         this.element.style.transition = 'none'
