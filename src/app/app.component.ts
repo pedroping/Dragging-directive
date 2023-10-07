@@ -4,7 +4,13 @@ import { Component } from "@angular/core";
   selector: "app-root",
   template: `
     <div class="boundary">
-      <div class="example-box" appFreeDragging #function="appFreeDragging">
+      <div
+        class="example-box"
+        appFreeDragging
+        [heightDrecrease]="50"
+        [baseSizes]="baseSizes"
+        #function="appFreeDragging"
+      >
         I can only be dragged using the handle
 
         <div class="example-handle" appFreeDraggingHandle>
@@ -15,12 +21,17 @@ import { Component } from "@angular/core";
             <path d="M0 0h24v24H0z" fill="none"></path>
           </svg>
         </div>
-        <svg width="24px" fill="currentColor" viewBox="0 0 24 24" (click)="function.setFullSize()">
-            <path
-              d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"
-            ></path>
-            <path d="M0 0h24v24H0z" fill="none"></path>
-          </svg>
+        <svg
+          width="24px"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+          (click)="function.setFullSize()"
+        >
+          <path
+            d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"
+          ></path>
+          <path d="M0 0h24v24H0z" fill="none"></path>
+        </svg>
       </div>
     </div>
   `,
@@ -51,7 +62,6 @@ import { Component } from "@angular/core";
         box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
           0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
         background-color: whitesmoke;
-         
       }
 
       .example-box.free-dragging {
@@ -74,4 +84,8 @@ import { Component } from "@angular/core";
 export class AppComponent {
   title = "angular-free-dragging";
 
+  baseSizes = {
+    width: 500,
+    height: 200,
+  };
 }

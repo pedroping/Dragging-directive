@@ -5,7 +5,7 @@ import {
   ElementRef,
   Input,
   OnDestroy,
-  OnInit
+  OnInit,
 } from "@angular/core";
 import { Subject, Subscription, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, take, takeUntil } from "rxjs/operators";
@@ -15,38 +15,43 @@ export interface ElementSizes {
   width: string;
   height: string;
 }
+
+export interface ElementSizesNum {
+  width: number;
+  height: number;
+}
+
+export const GAP = 10;
 @Directive({
   selector: "[appFreeDragging]",
-  exportAs: 'appFreeDragging'
+  exportAs: "appFreeDragging",
 })
 export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
   private readonly DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
+  private _worker!: Worker;
   private element: HTMLElement;
   private subscriptions: Subscription[] = [];
 
   @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
   handle: ElementRef;
   @Input() boundaryQuery = this.DEFAULT_DRAGGING_BOUNDARY_QUERY;
+  @Input() heightDrecrease = 0;
+  @Input() widthDrecrease = 0;
+  @Input() baseSizes: ElementSizesNum;
 
   handleElement: HTMLElement;
   draggingBoundaryElement: HTMLElement | HTMLBodyElement;
   stopTaking$ = new Subject<void>();
-  isOnFullScreen = false
+  isOnFullScreen = false;
 
-  private _worker!: Worker
-
-  constructor(
-    private elementRef: ElementRef,
-  ) { }
+  constructor(private elementRef: ElementRef) {}
 
   ngOnInit(): void {
     this.setServiceWorker();
   }
 
   ngAfterViewInit(): void {
-    this.draggingBoundaryElement = document.querySelector(
-      this.boundaryQuery
-    );
+    this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
 
     if (!this.draggingBoundaryElement) {
       throw new Error(
@@ -54,8 +59,7 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
       );
     } else {
       this.element = this.elementRef.nativeElement as HTMLElement;
-      this.handleElement =
-        this.handle?.nativeElement || this.element;
+      this.handleElement = this.handle?.nativeElement || this.element;
       this.initDrag();
     }
   }
@@ -91,7 +95,7 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
       const maxBoundY =
         minBoundY +
         this.draggingBoundaryElement.offsetHeight -
-        60 -
+        this.heightDrecrease -
         this.element.offsetHeight;
 
       this.stopTaking$.next();
@@ -136,15 +140,26 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
         currentX = x;
         currentY = y;
 
-        if (this.element.offsetWidth != window.innerWidth || this.element.offsetHeight != window.innerHeight - 50)
-          this.isOnFullScreen = false
+        if (
+          this.element.offsetWidth != window.innerWidth ||
+          this.element.offsetHeight != window.innerHeight - this.heightDrecrease
+        )
+          this.isOnFullScreen = false;
 
-        if (y + this.element.offsetHeight > window.innerHeight - 60) {
-          const newY = window.innerHeight - 60 - this.element.offsetHeight + 10;
+        if (
+          y + this.element.offsetHeight >
+          window.innerHeight - this.heightDrecrease - GAP
+        ) {
+          const newY =
+            window.innerHeight -
+            this.heightDrecrease -
+            GAP -
+            this.element.offsetHeight +
+            GAP;
           currentY = newY;
         }
 
-        if (x + this.element.offsetWidth > window.innerWidth - 10) {
+        if (x + this.element.offsetWidth > window.innerWidth - GAP * 2) {
           const newX = window.innerWidth - this.element.offsetWidth;
           currentX = newX;
         }
@@ -155,27 +170,35 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
 
     const windowResizeSub = windowResize$.subscribe(() => {
       if (this.isOnFullScreen) {
-        this.setFullSize()
-        return
-      };
+        this.setFullSize();
+        return;
+      }
 
       if (this.element.offsetWidth > window.innerWidth) {
         this.element.style.width = window.innerWidth + "px";
       }
 
-      if (this.element.offsetHeight > window.innerHeight - 50) {
-        this.element.style.height = window.innerHeight - 50 + "px";
+      if (
+        this.element.offsetHeight >
+        window.innerHeight - this.heightDrecrease
+      ) {
+        this.element.style.height =
+          window.innerHeight - this.heightDrecrease + "px";
       }
     });
 
     const config = { attributes: true, childList: true, subtree: true };
 
-    new MutationObserver((mutationList) => {
+    new MutationObserver(() => {
       const width = this.elementRef.nativeElement.style.width;
       const height = this.elementRef.nativeElement.style.height;
       resizeSubject$.next({
-        width: this.isSmallestThan200(width) ? "200px" : width,
-        height: this.isSmallestThan200(height) ? "200px" : height,
+        width: this.isSmallestThan(width, this.baseSizes.width)
+          ? "200px"
+          : width,
+        height: this.isSmallestThan(height, this.baseSizes.height)
+          ? "200px"
+          : height,
       });
     }).observe(this.elementRef.nativeElement, config);
 
@@ -188,14 +211,14 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
     ]);
   }
 
-  isSmallestThan200(value: string) {
+  isSmallestThan(value: string, baseSize: number) {
     const number = +value.replace("px", "");
-    return number < 200;
+    return number < baseSize;
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((s) => s?.unsubscribe());
-    this._worker.terminate()
+    this._worker.terminate();
   }
 
   getTransformValues(transform: string) {
@@ -210,31 +233,37 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setFullSize() {
-    this.isOnFullScreen = true
-    this.element.style.transition = 'all .5s ease';
+    this.isOnFullScreen = true;
+    this.element.style.transition = "all .5s ease";
 
-    timer(100).pipe(take(1)).subscribe(() => {
-      this.element.style.transform = "translate3d(" + 0 + "px, " + 0 + "px, 0)";
-      this.element.style.width = window.innerWidth + "px";
-      this.element.style.height = window.innerHeight - 50 + "px";
+    timer(100)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.element.style.transform =
+          "translate3d(" + 0 + "px, " + 0 + "px, 0)";
+        this.element.style.width = window.innerWidth + "px";
+        this.element.style.height =
+          window.innerHeight - this.heightDrecrease + "px";
 
-      timer(1000).pipe(take(1)).subscribe(() => {
-        this.element.style.transition = 'none'
-      })
-
-    })
+        timer(1000)
+          .pipe(take(1))
+          .subscribe(() => {
+            this.element.style.transition = "none";
+          });
+      });
   }
 
   setServiceWorker() {
-    this._worker = new Worker(new URL('../drag-calculator.worker', import.meta.url))
-    this._worker.postMessage('Hello World!!')
+    this._worker = new Worker(
+      new URL("../drag-calculator.worker", import.meta.url)
+    );
+    this._worker.postMessage("Hello World!!");
     this._worker.onmessage = ({ data }) => {
-      if (this.istanceofString(data))
-        console.log(data)
-    }
+      if (this.istanceofString(data)) console.log(data);
+    };
   }
 
   istanceofString(data: unknown): data is string {
-    return !!data['substring']
+    return !!data["substring"];
   }
 }
