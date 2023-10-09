@@ -44,7 +44,7 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
   stopTaking$ = new Subject<void>();
   isOnFullScreen = false;
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) { }
 
   ngOnInit(): void {
     this.setServiceWorker();
@@ -113,8 +113,7 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
         currentX = Math.max(minBoundX, Math.min(x, maxBoundX));
         currentY = Math.max(minBoundY, Math.min(y, maxBoundY));
 
-        this.element.style.transform =
-          "translate3d(" + currentX + "px, " + currentY + "px, 0)";
+        this.element.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;;
       });
     });
 
@@ -164,8 +163,7 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
           currentX = newX;
         }
 
-        this.element.style.transform =
-          "translate3d(" + currentX + "px, " + currentY + "px, 0)";
+        this.element.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
       });
 
     const windowResizeSub = windowResize$.subscribe(() => {
@@ -239,8 +237,7 @@ export class FreeDraggingDirective implements OnInit, AfterViewInit, OnDestroy {
     timer(100)
       .pipe(take(1))
       .subscribe(() => {
-        this.element.style.transform =
-          "translate3d(" + 0 + "px, " + 0 + "px, 0)";
+        this.element.style.transform = `translate3d(0px, 0px, 0)`;
         this.element.style.width = window.innerWidth + "px";
         this.element.style.height =
           window.innerHeight - this.heightDrecrease + "px";
