@@ -40,7 +40,7 @@ import { Component } from "@angular/core";
       .example-box {
         width: 500px;
         height: 200px;
-        min-width: 200px;
+        min-width: 500px;
         min-height: 200px;
         resize: both;
         overflow: auto;

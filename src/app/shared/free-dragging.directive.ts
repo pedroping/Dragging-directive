@@ -50,7 +50,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   observeConfig = { attributes: true, childList: true, subtree: true };
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) { }
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
@@ -122,7 +122,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   }
 
   setFullSize() {
-    this.isOnFullScreen = true;
     this.element.style.transition = "all .5s ease";
 
     timer(100)
@@ -136,6 +135,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         timer(1000)
           .pipe(take(1))
           .subscribe(() => {
+            this.isOnFullScreen = true;
             this.element.style.transition = "none";
           });
       });
@@ -195,12 +195,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.currentY = y;
 
       if (
-        this.element.offsetWidth != window.innerWidth ||
-        this.element.offsetHeight != window.innerHeight - this.heightDrecrease
-      )
-        this.isOnFullScreen = false;
-
-      if (
         y + this.element.offsetHeight >
         window.innerHeight - this.heightDrecrease - GAP
       ) {
@@ -224,6 +218,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   winResizeCallBack() {
     return () => {
+
       if (this.isOnFullScreen) {
         this.setFullSize();
         return;
@@ -252,6 +247,17 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     return () => {
       const width = this.elementRef.nativeElement.style.width;
       const height = this.elementRef.nativeElement.style.height;
+
+      if (this.isOnFullScreen) {
+        if (
+          this.element.offsetWidth != window.innerWidth ||
+          this.element.offsetHeight != window.innerHeight - this.heightDrecrease
+        ) {
+          this.isOnFullScreen = false;
+        }
+
+      }
+
       resizeSubject$.next({
         width: this.isSmallestThan(width, this.baseSizes.width)
           ? `${this.baseSizes.width}px`
