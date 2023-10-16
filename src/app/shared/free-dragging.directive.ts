@@ -50,7 +50,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   observeConfig = { attributes: true, childList: true, subtree: true };
 
-  constructor(private elementRef: ElementRef) { }
+  constructor(private elementRef: ElementRef) {}
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
@@ -121,21 +121,27 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     return { x: splitedValues[0], y: splitedValues[1] };
   }
 
-  setFullSize() {
+  setFullSize(setFullScreen = !this.isOnFullScreen) {
     this.element.style.transition = "all .5s ease";
+
+    const width = setFullScreen ? window.innerWidth : this.baseSizes.width;
+    const height = setFullScreen
+      ? window.innerHeight - this.heightDrecrease
+      : this.baseSizes.height;
+    const resize = setFullScreen ? "none" : "both";
 
     timer(100)
       .pipe(take(1))
       .subscribe(() => {
         this.element.style.transform = `translate3d(0px, 0px, 0)`;
-        this.element.style.width = window.innerWidth + "px";
-        this.element.style.height =
-          window.innerHeight - this.heightDrecrease + "px";
+        this.element.style.resize = resize;
+        this.element.style.width = width + "px";
+        this.element.style.height = height + "px";
 
         timer(1000)
           .pipe(take(1))
           .subscribe(() => {
-            this.isOnFullScreen = true;
+            this.isOnFullScreen = setFullScreen;
             this.element.style.transition = "none";
           });
       });
@@ -190,6 +196,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   resizeCallBack() {
     return () => {
+      if (this.isOnFullScreen) return;
+
       const { x, y } = this.getTransformValues(this.element.style.transform);
       this.currentX = x;
       this.currentY = y;
@@ -218,9 +226,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   winResizeCallBack() {
     return () => {
-
       if (this.isOnFullScreen) {
-        this.setFullSize();
+        this.setFullSize(true);
         return;
       }
 
@@ -247,16 +254,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     return () => {
       const width = this.elementRef.nativeElement.style.width;
       const height = this.elementRef.nativeElement.style.height;
-
-      if (this.isOnFullScreen) {
-        if (
-          this.element.offsetWidth != window.innerWidth ||
-          this.element.offsetHeight != window.innerHeight - this.heightDrecrease
-        ) {
-          this.isOnFullScreen = false;
-        }
-
-      }
 
       resizeSubject$.next({
         width: this.isSmallestThan(width, this.baseSizes.width)
