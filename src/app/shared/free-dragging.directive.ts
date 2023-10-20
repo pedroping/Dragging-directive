@@ -48,9 +48,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   currentY = 0;
   dragSub: Subscription;
 
+  currentWidth: string | number = 'auto'
+  currentHeight: string | number = 'auto'
+
   observeConfig = { attributes: true, childList: true, subtree: true };
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) { }
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
@@ -121,31 +124,37 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   }
 
   setFullSize(setFullScreen = !this.isOnFullScreen) {
-    this.isSettingFullScreen = true;
-    this.element.style.transition = "all .5s ease";
+    if (this.isSettingFullScreen) return;
+    
+    if (!this.isOnFullScreen) {
+      this.currentWidth = this.element.style.width.replace('px', '') || this.baseSizes.width;
+      this.currentHeight = this.element.style.height.replace('px', '') || this.baseSizes.height;
+      console.log(this.currentWidth, this.currentHeight);
 
-    const width = setFullScreen ? window.innerWidth : this.baseSizes.width;
+    }
+
+    this.isSettingFullScreen = true;
+    const transform = setFullScreen ? `translate3d(0px, 0px, 0)` : `translate3d(${this.currentX}px, ${this.currentY}px, 0)`
+    const width = setFullScreen ? window.innerWidth : this.currentWidth;
     const height = setFullScreen
       ? window.innerHeight - this.heightDrecrease
-      : this.baseSizes.height;
+      : this.currentHeight
 
-    this.currentX = 0;
-    this.currentY = 0;
-
+    this.element.style.transition = "all .2s ease";
     timer(100)
       .pipe(take(1))
       .subscribe(() => {
-        this.element.style.transform = `translate3d(0px, 0px, 0)`;
         this.element.style.width = width + "px";
         this.element.style.height = height + "px";
+        this.element.style.transform = transform;
 
-        timer(1000)
+        timer(100)
           .pipe(take(1))
           .subscribe(() => {
             this.isOnFullScreen = setFullScreen;
             this.element.style.transition = "none";
 
-            timer(1000)
+            timer(100)
               .pipe(take(1))
               .subscribe(() => {
                 this.isSettingFullScreen = false;
