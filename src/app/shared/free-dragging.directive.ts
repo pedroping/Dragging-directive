@@ -21,9 +21,12 @@ export interface ElementSizesNum {
 }
 
 export const GAP = 10;
+export const INITIAL_Z_INDEX = '1';
+export const MAX_Z_INDEX = '100';
 @Directive({
   selector: "[appFreeDragging]",
   exportAs: "appFreeDragging",
+  standalone: true
 })
 export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   private readonly DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
@@ -94,13 +97,13 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.observeConfig
     );
 
-    this.subscriptions.push.apply(this.subscriptions, [
+    this.subscriptions = [
       dragStartSub,
       this.dragSub,
       dragEndSub,
       resizeSub,
       windowResizeSub,
-    ]);
+    ];
   }
 
   isSmallestThan(value: string, baseSize: number) {
@@ -125,12 +128,10 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   setFullSize(setFullScreen = !this.isOnFullScreen) {
     if (this.isSettingFullScreen) return;
-    
+
     if (!this.isOnFullScreen) {
       this.currentWidth = this.element.style.width.replace('px', '') || this.baseSizes.width;
       this.currentHeight = this.element.style.height.replace('px', '') || this.baseSizes.height;
-      console.log(this.currentWidth, this.currentHeight);
-
     }
 
     this.isSettingFullScreen = true;
@@ -170,11 +171,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       const minBoundY = this.draggingBoundaryElement.offsetTop;
 
       const maxBoundX =
-        minBoundX +
         this.draggingBoundaryElement.offsetWidth -
         this.element.offsetWidth;
       const maxBoundY =
-        minBoundY +
         this.draggingBoundaryElement.offsetHeight -
         this.heightDrecrease -
         this.element.offsetHeight;
@@ -182,7 +181,10 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.stopTaking$.next();
       this.initialX = event.clientX - this.currentX;
       this.initialY = event.clientY - this.currentY;
+
       this.element.classList.add("free-dragging");
+      this.element.style.zIndex = MAX_Z_INDEX
+
 
       this.dragSub = drag$.subscribe((event: MouseEvent) => {
         this.stopTaking$.next();
@@ -191,8 +193,11 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         const x = event.clientX - this.initialX;
         const y = event.clientY - this.initialY;
 
-        this.currentX = Math.max(minBoundX, Math.min(x, maxBoundX));
-        this.currentY = Math.max(minBoundY, Math.min(y, maxBoundY));
+        this.currentX = Math.max(0, Math.min(x, maxBoundX));
+        this.currentY = Math.max(0, Math.min(y, maxBoundY));
+
+        // this.currentX = Math.min(x, maxBoundX);
+        // this.currentY = Math.min(y, maxBoundY);
 
         this.element.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
       });
@@ -205,6 +210,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.initialY = this.currentY;
       this.stopTaking$.next();
       this.element.classList.remove("free-dragging");
+      this.element.style.zIndex = INITIAL_Z_INDEX;
       if (this.dragSub) {
         this.dragSub.unsubscribe();
       }
