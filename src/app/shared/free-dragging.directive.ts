@@ -9,6 +9,7 @@ import {
 import { Observable, Subject, Subscription, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, filter, take, takeUntil } from "rxjs/operators";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
+import { LastZIndexService } from "./last-z-index.service";
 
 export interface ElementSizes {
   width: string;
@@ -56,7 +57,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   observeConfig = { attributes: true, childList: true, subtree: true };
 
-  constructor(private elementRef: ElementRef) { }
+  constructor(private elementRef: ElementRef, private lastZIndexService: LastZIndexService) { }
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
@@ -80,6 +81,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     const drag$ = fromEvent<MouseEvent>(document, "mousemove").pipe(
       takeUntil(dragEnd$)
     );
+    const click$ = fromEvent<MouseEvent>(this.elementRef.nativeElement, 'click')
     const resize$ = resizeSubject$.asObservable().pipe(
       distinctUntilChanged(
         (prev: ElementSizes, curr: ElementSizes) =>
@@ -92,6 +94,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     const dragEndSub = dragEnd$.subscribe(this.dragEndCallBack());
     const windowResizeSub = windowResize$.subscribe(this.winResizeCallBack());
     const resizeSub = resize$.subscribe(this.resizeCallBack());
+    const clickSub = click$.subscribe(this.clickCallBack())
     new MutationObserver(this.mutationObserveCallBack(resizeSubject$)).observe(
       this.elementRef.nativeElement,
       this.observeConfig
@@ -102,6 +105,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.dragSub,
       dragEndSub,
       resizeSub,
+      clickSub,
       windowResizeSub,
     ];
   }
@@ -183,7 +187,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.initialY = event.clientY - this.currentY;
 
       this.element.classList.add("free-dragging");
-      this.element.style.zIndex = MAX_Z_INDEX
+      this.element.style.zIndex = this.lastZIndexService.createNewZIndex();
 
 
       this.dragSub = drag$.subscribe((event: MouseEvent) => {
@@ -204,13 +208,18 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     };
   }
 
+  clickCallBack() {
+    return () => {
+      this.element.style.zIndex = this.lastZIndexService.createNewZIndex();
+    }
+  }
+
   dragEndCallBack() {
     return () => {
       this.initialX = this.currentX;
       this.initialY = this.currentY;
       this.stopTaking$.next();
       this.element.classList.remove("free-dragging");
-      this.element.style.zIndex = INITIAL_Z_INDEX;
       if (this.dragSub) {
         this.dragSub.unsubscribe();
       }
@@ -250,8 +259,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   winResizeCallBack() {
     return () => {
       if (this.isOnFullScreen) {
-        console.log("set Full");
-
         this.setFullSize(true);
         return;
       }
