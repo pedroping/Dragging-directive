@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
-import { FreeDraggingHandleDirective } from './shared/free-dragging-handle.directive';
-import { FreeDraggingDirective } from './shared/free-dragging.directive';
+import { FreeDraggingHandleDirective } from './shared/directives/free-dragging-handle.directive';
 import { SharedModule } from './shared/shared.module';
+import { FreeDraggingDirective } from './shared/directives/free-dragging.directive';
 
 @NgModule({
   declarations: [

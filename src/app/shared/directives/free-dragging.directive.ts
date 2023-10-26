@@ -9,7 +9,7 @@ import {
 import { Observable, Subject, Subscription, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, filter, take, takeUntil } from "rxjs/operators";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
-import { LastZIndexService } from "./last-z-index.service";
+import { LastZIndexService } from '../services/last-z-index.service'
 
 export interface ElementSizes {
   width: string;
