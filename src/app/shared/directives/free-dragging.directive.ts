@@ -10,20 +10,7 @@ import { Observable, Subject, Subscription, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, filter, take, takeUntil } from "rxjs/operators";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
 import { LastZIndexService } from '../services/last-z-index.service'
-
-export interface ElementSizes {
-  width: string;
-  height: string;
-}
-
-export interface ElementSizesNum {
-  width: number;
-  height: number;
-}
-
-export const GAP = 10;
-export const INITIAL_Z_INDEX = "1";
-export const MAX_Z_INDEX = "100";
+import { ElementSizesNum, ElementSizes, GAP } from "../models/models";
 @Directive({
   selector: "[appFreeDragging]",
   exportAs: "appFreeDragging",
@@ -43,6 +30,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   @Input() startOnMiddle = false;
   @Input() customX = 0;
   @Input() customY = 0;
+  @Input() id: string | number;
 
   handleElement: HTMLElement;
   draggingBoundaryElement: HTMLElement | HTMLBodyElement;
@@ -63,7 +51,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   constructor(
     private elementRef: ElementRef,
     private lastZIndexService: LastZIndexService
-  ) {}
+  ) { }
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
@@ -290,6 +278,16 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         this.element.style.height =
           window.innerHeight - this.heightDrecrease + "px";
       }
+
+
+      const width = this.element.style.width ? +this.element.style.width.replace('px', '') : this.baseSizes.width;
+      const height = this.element.style.height ? +this.element.style.height.replace('px', '') : this.baseSizes.height;
+      const maxX = window.innerWidth - width;
+      const maxY = window.innerHeight - this.heightDrecrease - height;
+
+      this.currentX = Math.min(this.currentX, maxX);
+      this.currentY = Math.min(this.currentY, maxY);
+      this.element.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
     };
   }
 

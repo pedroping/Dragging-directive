@@ -11,6 +11,7 @@ import { Component } from "@angular/core";
         [baseSizes]="baseSizes"
         [customX]="90"
         [customY]="65"
+        id="page01"
         #function="appFreeDragging"
       >
         I can only be dragged using the handle
@@ -42,6 +43,7 @@ import { Component } from "@angular/core";
         [heightDrecrease]="50"
         [baseSizes]="baseSizes"
         [startOnMiddle]="true"
+        id="page02"
         #function2="appFreeDragging"
       >
         I can only be dragged using the handle
