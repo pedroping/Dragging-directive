@@ -279,14 +279,13 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
           window.innerHeight - this.heightDrecrease + "px";
       }
 
-
       const width = this.element.style.width ? +this.element.style.width.replace('px', '') : this.baseSizes.width;
       const height = this.element.style.height ? +this.element.style.height.replace('px', '') : this.baseSizes.height;
       const maxX = window.innerWidth - width;
       const maxY = window.innerHeight - this.heightDrecrease - height;
 
-      this.currentX = Math.min(this.currentX, maxX);
-      this.currentY = Math.min(this.currentY, maxY);
+      this.currentX = Math.max(0, Math.min(this.currentX, maxX));
+      this.currentY = Math.max(0, Math.min(this.currentY, maxY));
       this.element.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
     };
   }
