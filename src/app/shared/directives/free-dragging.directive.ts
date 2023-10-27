@@ -241,9 +241,10 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         y + this.element.offsetHeight >
         window.innerHeight - this.heightDrecrease - GAP
       ) {
+        const winHeight = window.innerHeight -
+          this.heightDrecrease
         const newY =
-          window.innerHeight -
-          this.heightDrecrease -
+          winHeight -
           GAP -
           this.element.offsetHeight +
           GAP;
