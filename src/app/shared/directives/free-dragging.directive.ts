@@ -121,11 +121,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     this.element.style.transform = `translate3d(${x}px, ${y}px, 0)`;
   }
 
-  isSmallestThan(value: string, baseSize: number) {
-    const number = +value.replace("px", "");
-    return number < baseSize;
-  }
-
   getTransformValues(transform: string) {
     if (!transform) return { x: -1, y: -1 };
     const splitedLabel = transform.split("(")[1].replace(")", "");
@@ -298,16 +293,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     }>
   ) {
     return () => {
-      const width = this.elementRef.nativeElement.style.width;
-      const height = this.elementRef.nativeElement.style.height;
+      const width = +this.elementRef.nativeElement.style.width.replace('px', '');
+      const height = +this.elementRef.nativeElement.style.height.replace('px', '');
 
       resizeSubject$.next({
-        width: this.isSmallestThan(width, this.baseSizes.width)
-          ? `${this.baseSizes.width}px`
-          : width,
-        height: this.isSmallestThan(height, this.baseSizes.height)
-          ? `${this.baseSizes.height}px`
-          : height,
+        width: Math.max(width, this.baseSizes.height) + 'px',
+        height: Math.max(height, this.baseSizes.height) + 'px',
       });
     };
   }
