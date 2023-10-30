@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { AppComponent } from './app.component';
+import { AppComponent } from './main-component/app.component';
 import { FreeDraggingHandleDirective } from './shared/directives/free-dragging-handle.directive';
 import { SharedModule } from './shared/shared.module';
 import { FreeDraggingDirective } from './shared/directives/free-dragging.directive';

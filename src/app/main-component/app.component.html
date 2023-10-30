@@ -1,0 +1,21 @@
+<div class="boundary">
+  <div class="example-box" appFreeDragging [heightDrecrease]="50" [baseSizes]="baseSizes" [customX]="90" [customY]="65"
+    id="page01" #function="appFreeDragging">
+    I can only be dragged using the handle
+
+    <div class="example-handle" appFreeDraggingHandle>
+      <img src="assets/move.svg" alt="" width="24" height="24">
+    </div>
+    <img src="assets/move.svg" alt="" width="24" height="24" (click)="function.setFullSize()">
+  </div>
+
+  <div class="example-box" appFreeDragging [heightDrecrease]="50" [baseSizes]="baseSizes" [startOnMiddle]="true"
+    id="page02" #function2="appFreeDragging">
+    I can only be dragged using the handle
+
+    <div class="example-handle" appFreeDraggingHandle>
+      <img src="assets/move.svg" alt="" width="24" height="24">
+    </div>
+    <img src="assets/move.svg" alt="" width="24" height="24" (click)="function2.setFullSize()">
+  </div>
+</div>
