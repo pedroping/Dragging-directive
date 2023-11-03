@@ -44,4 +44,13 @@
   img[appFreeDraggingSetFullScreen] {
     cursor: pointer;
   }
+
+  footer {
+    width: 100%;
+    height: 40px;
+    position: fixed;
+    background-color: #6060603d;
+    padding: 10px;
+    bottom: 0;
+  }
 }
