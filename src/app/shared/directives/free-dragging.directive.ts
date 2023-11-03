@@ -6,11 +6,12 @@ import {
   Input,
   OnDestroy,
 } from "@angular/core";
-import { Observable, Subject, Subscription, fromEvent, timer } from "rxjs";
+import { Observable, Subject, Subscription, from, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, filter, take, takeUntil } from "rxjs/operators";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
 import { LastZIndexService } from '../services/last-z-index.service'
 import { ElementSizesNum, ElementSizes, GAP } from "../models/models";
+import { FreeDraggingSetFullScreenDirective } from "./free-dragging-set-full-screen.directive";
 @Directive({
   selector: "[appFreeDragging]",
   exportAs: "appFreeDragging",
@@ -21,8 +22,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   private element: HTMLElement;
   private subscriptions: Subscription[] = [];
 
-  @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
-  handle: ElementRef;
+  @ContentChild(FreeDraggingHandleDirective, { read: ElementRef }) handle: ElementRef;
+  @ContentChild(FreeDraggingSetFullScreenDirective, { read: ElementRef }) setFullScreen: ElementRef
+
   @Input() boundaryQuery = this.DEFAULT_DRAGGING_BOUNDARY_QUERY;
   @Input() heightDrecrease = 0;
   @Input() widthDrecrease = 0;
@@ -56,17 +58,20 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
 
-    if (!this.draggingBoundaryElement) {
+    if (!this.draggingBoundaryElement)
       throw new Error(
         "Couldn't find any element with query: " + this.boundaryQuery
       );
-    } else {
-      this.element = this.elementRef.nativeElement as HTMLElement;
-      this.handleElement = this.handle?.nativeElement || this.element;
-      this.initDrag();
-      this.setCustomStart();
-      if (this.startOnMiddle) this.setToMiddle();
-    }
+
+    this.startElementDomain();
+  }
+
+  startElementDomain() {
+    this.element = this.elementRef.nativeElement as HTMLElement;
+    this.handleElement = this.handle?.nativeElement || this.element;
+    this.initDrag();
+    this.setCustomStart();
+    if (this.startOnMiddle) this.setToMiddle();
   }
 
   initDrag(): void {
@@ -77,6 +82,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     const drag$ = fromEvent<MouseEvent>(document, "mousemove").pipe(
       takeUntil(dragEnd$)
     );
+    const fullScreenClick$ = fromEvent(this.setFullScreen?.nativeElement, 'click');
     const click$ = fromEvent<MouseEvent>(
       this.elementRef.nativeElement,
       "click"
@@ -94,6 +100,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     const windowResizeSub = windowResize$.subscribe(this.winResizeCallBack());
     const resizeSub = resize$.subscribe(this.resizeCallBack());
     const clickSub = click$.subscribe(this.clickCallBack());
+    const fullScreenClick = fullScreenClick$.subscribe(this.setFullScreenCallBack());
     new MutationObserver(this.mutationObserveCallBack(resizeSubject$)).observe(
       this.elementRef.nativeElement,
       this.observeConfig
@@ -106,6 +113,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       resizeSub,
       clickSub,
       windowResizeSub,
+      fullScreenClick
     ];
   }
 
@@ -210,6 +218,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     return () => {
       this.element.style.zIndex = this.lastZIndexService.createNewZIndex();
     };
+  }
+
+  setFullScreenCallBack() {
+    return () => {
+      this.setFullSize()
+    }
   }
 
   dragEndCallBack() {
