@@ -1,27 +1,24 @@
-import { ElementRef, Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { OpenedElement } from '../models/models';
+import { ElementRef, Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
+import { OpenedElement } from "../models/models";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class ElementsService {
-
   openedElements$ = new BehaviorSubject<OpenedElement[]>([]);
 
-  constructor() { }
-
-
+  constructor() {}
 
   pushElement(element: ElementRef, id: number | string) {
     const otherElements = this.openedElements$.value;
     const newElement: OpenedElement = {
       element: element,
       id: id,
-      opened: true
-    }
+      opened: true,
+    };
 
-    this.openedElements$.next([...otherElements, newElement])
+    this.openedElements$.next([...otherElements, newElement]);
+    return newElement;
   }
-
 }

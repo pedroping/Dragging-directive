@@ -6,11 +6,18 @@ import {
   Input,
   OnDestroy,
 } from "@angular/core";
-import { Observable, Subject, Subscription, from, fromEvent, timer } from "rxjs";
+import { Observable, Subject, Subscription, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, filter, take, takeUntil } from "rxjs/operators";
+import {
+  DEFAULT_DRAGGING_BOUNDARY_QUERY,
+  ElementSizes,
+  ElementSizesNum,
+  GAP,
+  OBSERVE_CONFIG,
+} from "../models/models";
+import { ElementsService } from "../services/elements.service";
+import { LastZIndexService } from "../services/last-z-index.service";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
-import { LastZIndexService } from '../services/last-z-index.service'
-import { ElementSizesNum, ElementSizes, GAP } from "../models/models";
 import { FreeDraggingSetFullScreenDirective } from "./free-dragging-set-full-screen.directive";
 @Directive({
   selector: "[appFreeDragging]",
@@ -18,14 +25,12 @@ import { FreeDraggingSetFullScreenDirective } from "./free-dragging-set-full-scr
   standalone: true,
 })
 export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
-  private readonly DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
-  private element: HTMLElement;
-  private subscriptions: Subscription[] = [];
+  @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
+  handle: ElementRef;
+  @ContentChild(FreeDraggingSetFullScreenDirective, { read: ElementRef })
+  setFullScreen: ElementRef;
 
-  @ContentChild(FreeDraggingHandleDirective, { read: ElementRef }) handle: ElementRef;
-  @ContentChild(FreeDraggingSetFullScreenDirective, { read: ElementRef }) setFullScreen: ElementRef
-
-  @Input() boundaryQuery = this.DEFAULT_DRAGGING_BOUNDARY_QUERY;
+  @Input() boundaryQuery = DEFAULT_DRAGGING_BOUNDARY_QUERY;
   @Input() heightDrecrease = 0;
   @Input() widthDrecrease = 0;
   @Input() baseSizes: ElementSizesNum;
@@ -34,26 +39,27 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   @Input() customY = 0;
   @Input() id: string | number;
 
-  handleElement: HTMLElement;
-  draggingBoundaryElement: HTMLElement | HTMLBodyElement;
-  stopTaking$ = new Subject<void>();
-  isOnFullScreen = false;
-  isSettingFullScreen = false;
-  initialX: number;
-  initialY: number;
-  currentX = 0;
-  currentY = 0;
-  dragSub: Subscription;
+  private draggingBoundaryElement: HTMLElement | HTMLBodyElement;
+  private subscriptions: Subscription[] = [];
+  private stopTaking$ = new Subject<void>();
+  private handleElement: HTMLElement;
+  private isSettingFullScreen = false;
+  private isOnFullScreen = false;
+  private dragSub: Subscription;
+  private element: HTMLElement;
+  private initialX = 0;
+  private initialY = 0;
+  private currentX = 0;
+  private currentY = 0;
 
   currentWidth: string | number = "auto";
   currentHeight: string | number = "auto";
 
-  observeConfig = { attributes: true, childList: true, subtree: true };
-
   constructor(
     private elementRef: ElementRef,
-    private lastZIndexService: LastZIndexService
-  ) { }
+    private lastZIndexService: LastZIndexService,
+    private elementsService: ElementsService
+  ) {}
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
@@ -71,7 +77,14 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     this.handleElement = this.handle?.nativeElement || this.element;
     this.initDrag();
     this.setCustomStart();
+    this.setElement();
     if (this.startOnMiddle) this.setToMiddle();
+  }
+
+  setElement() {
+    const element = this.elementRef;
+    const id = this.id;
+    this.elementsService.pushElement(element, id);
   }
 
   initDrag(): void {
@@ -82,7 +95,10 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     const drag$ = fromEvent<MouseEvent>(document, "mousemove").pipe(
       takeUntil(dragEnd$)
     );
-    const fullScreenClick$ = fromEvent(this.setFullScreen?.nativeElement, 'click');
+    const fullScreenClick$ = fromEvent(
+      this.setFullScreen?.nativeElement,
+      "click"
+    );
     const click$ = fromEvent<MouseEvent>(
       this.elementRef.nativeElement,
       "click"
@@ -100,10 +116,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     const windowResizeSub = windowResize$.subscribe(this.winResizeCallBack());
     const resizeSub = resize$.subscribe(this.resizeCallBack());
     const clickSub = click$.subscribe(this.clickCallBack());
-    const fullScreenClick = fullScreenClick$.subscribe(this.setFullScreenCallBack());
+    const fullScreenClick = fullScreenClick$.subscribe(
+      this.setFullScreenCallBack()
+    );
     new MutationObserver(this.mutationObserveCallBack(resizeSubject$)).observe(
       this.elementRef.nativeElement,
-      this.observeConfig
+      OBSERVE_CONFIG
     );
 
     this.subscriptions = [
@@ -113,7 +131,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       resizeSub,
       clickSub,
       windowResizeSub,
-      fullScreenClick
+      fullScreenClick,
     ];
   }
 
@@ -222,8 +240,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   setFullScreenCallBack() {
     return () => {
-      this.setFullSize()
-    }
+      this.setFullSize();
+    };
   }
 
   dragEndCallBack() {
@@ -250,12 +268,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         y + this.element.offsetHeight >
         window.innerHeight - this.heightDrecrease - GAP
       ) {
-        const winHeight = window.innerHeight -
-          this.heightDrecrease
-        const newY =
-          winHeight -
-          GAP -
-          this.element.offsetHeight;
+        const winHeight = window.innerHeight - this.heightDrecrease;
+        const newY = winHeight - GAP - this.element.offsetHeight;
 
         this.currentY = newY;
       }
@@ -289,8 +303,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
           window.innerHeight - this.heightDrecrease + "px";
       }
 
-      const width = this.element.style.width ? +this.element.style.width.replace('px', '') : this.baseSizes.width;
-      const height = this.element.style.height ? +this.element.style.height.replace('px', '') : this.baseSizes.height;
+      const width = this.element.style.width
+        ? +this.element.style.width.replace("px", "")
+        : this.baseSizes.width;
+      const height = this.element.style.height
+        ? +this.element.style.height.replace("px", "")
+        : this.baseSizes.height;
       const maxX = window.innerWidth - width;
       const maxY = window.innerHeight - this.heightDrecrease - height;
 
@@ -307,12 +325,18 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     }>
   ) {
     return () => {
-      const width = +this.elementRef.nativeElement.style.width.replace('px', '');
-      const height = +this.elementRef.nativeElement.style.height.replace('px', '');
+      const width = +this.elementRef.nativeElement.style.width.replace(
+        "px",
+        ""
+      );
+      const height = +this.elementRef.nativeElement.style.height.replace(
+        "px",
+        ""
+      );
 
       resizeSubject$.next({
-        width: Math.max(width, this.baseSizes.height) + 'px',
-        height: Math.max(height, this.baseSizes.height) + 'px',
+        width: Math.max(width, this.baseSizes.height) + "px",
+        height: Math.max(height, this.baseSizes.height) + "px",
       });
     };
   }
