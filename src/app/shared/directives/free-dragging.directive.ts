@@ -19,6 +19,7 @@ import { ElementsService } from "../services/elements.service";
 import { LastZIndexService } from "../services/last-z-index.service";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
 import { FreeDraggingSetFullScreenDirective } from "./free-dragging-set-full-screen.directive";
+import { DomElementAdpter } from "../adpters/dom-element-adpter";
 @Directive({
   selector: "[appFreeDragging]",
   exportAs: "appFreeDragging",
@@ -138,24 +139,13 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   setCustomStart() {
     const x = this.customX || this.currentX;
     const y = this.customY || this.currentY;
-    this.element.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    DomElementAdpter.setTransform(this.element, x, y);
   }
 
   setToMiddle() {
     const x = window.innerWidth / 2 - this.baseSizes.width / 2;
     const y = window.innerHeight / 2 - this.baseSizes.height / 2;
-    this.element.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-  }
-
-  getTransformValues(transform: string) {
-    if (!transform) return { x: -1, y: -1 };
-    const splitedLabel = transform.split("(")[1].replace(")", "");
-    const splitedValues = splitedLabel
-      .replace(",", "")
-      .split(" ")
-      .map((value) => +value.replace(",", "").replace("px", ""));
-
-    return { x: splitedValues[0], y: splitedValues[1] };
+    DomElementAdpter.setTransform(this.element, x, y);
   }
 
   setFullSize(setFullScreen = !this.isOnFullScreen) {
@@ -203,19 +193,22 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   dragStartCallBack(drag$: Observable<MouseEvent>) {
     return (event: MouseEvent) => {
+      this.stopTaking$.next();
       const maxBoundX =
         this.draggingBoundaryElement.offsetWidth - this.element.offsetWidth;
       const maxBoundY =
         this.draggingBoundaryElement.offsetHeight -
         this.heightDrecrease -
-        this.element.offsetHeight;
+        this.element.offsetHeight +
+        GAP;
 
-      this.stopTaking$.next();
       this.initialX = event.clientX - this.currentX;
       this.initialY = event.clientY - this.currentY;
 
+      const newZIndex = this.lastZIndexService.createNewZIndex();
       this.element.classList.add("free-dragging");
-      this.element.style.zIndex = this.lastZIndexService.createNewZIndex();
+
+      DomElementAdpter.setZIndex(this.element, newZIndex);
 
       this.dragSub = drag$.subscribe((event: MouseEvent) => {
         this.stopTaking$.next();
@@ -227,7 +220,11 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         this.currentX = Math.max(0, Math.min(x, maxBoundX));
         this.currentY = Math.max(0, Math.min(y, maxBoundY));
 
-        this.element.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
+        DomElementAdpter.setTransform(
+          this.element,
+          this.currentX,
+          this.currentY
+        );
       });
     };
   }
@@ -260,7 +257,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     return () => {
       this.isOnFullScreen = false;
 
-      const { x, y } = this.getTransformValues(this.element.style.transform);
+      const { x, y } = DomElementAdpter.getTransformValues(
+        this.element.style.transform
+      );
       this.currentX = x;
       this.currentY = y;
 
@@ -269,7 +268,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         window.innerHeight - this.heightDrecrease - GAP
       ) {
         const winHeight = window.innerHeight - this.heightDrecrease;
-        const newY = winHeight - GAP - this.element.offsetHeight;
+        const newY = winHeight - this.element.offsetHeight;
 
         this.currentY = newY;
       }
@@ -279,8 +278,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         this.currentX = newX;
       }
 
-      this.element.style.zIndex = this.lastZIndexService.createNewZIndex();
-      this.element.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
+      const newZIndex = this.lastZIndexService.createNewZIndex();
+      DomElementAdpter.setZIndex(this.element, newZIndex);
+      DomElementAdpter.setTransform(this.element, this.currentX, this.currentY);
     };
   }
 
@@ -314,7 +314,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
       this.currentX = Math.max(0, Math.min(this.currentX, maxX));
       this.currentY = Math.max(0, Math.min(this.currentY, maxY));
-      this.element.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
+      DomElementAdpter.setTransform(this.element, this.currentX, this.currentY);
     };
   }
 
