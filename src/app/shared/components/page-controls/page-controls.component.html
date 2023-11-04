@@ -1,5 +1,9 @@
 <ng-container *ngFor="let openedElement of openedElements$ | async">
-  <div (click)="handleElementClick(openedElement.id)">
+  <div
+    class="element"
+    (click)="handleElementClick(openedElement.id)"
+    [class.hidden]="!openedElement.opened"
+  >
     {{ openedElement.id }}
   </div>
 </ng-container>

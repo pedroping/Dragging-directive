@@ -52,9 +52,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   private initialY = 0;
   private currentX = 0;
   private currentY = 0;
-
-  currentWidth: string | number = "auto";
-  currentHeight: string | number = "auto";
+  private resetPositions$ = new Subject<void>();
+  private currentWidth: string | number = "auto";
+  private currentHeight: string | number = "auto";
 
   constructor(
     private elementRef: ElementRef,
@@ -78,8 +78,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     this.handleElement = this.handle?.nativeElement || this.element;
     this.initDrag();
     this.setCustomStart();
-    this.setElement();
     if (this.startOnMiddle) this.setToMiddle();
+    this.setElement();
   }
 
   setElement() {
@@ -112,9 +112,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       filter(() => !this.isSettingFullScreen)
     );
 
+    const windowResizeSub = windowResize$.subscribe(this.winResizeCallBack());
     const dragStartSub = dragStart$.subscribe(this.dragStartCallBack(drag$));
     const dragEndSub = dragEnd$.subscribe(this.dragEndCallBack());
-    const windowResizeSub = windowResize$.subscribe(this.winResizeCallBack());
     const resizeSub = resize$.subscribe(this.resizeCallBack());
     const clickSub = click$.subscribe(this.clickCallBack());
     const fullScreenClick = fullScreenClick$.subscribe(
@@ -167,7 +167,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       ? window.innerHeight - this.heightDrecrease
       : this.currentHeight;
 
-    this.element.style.transition = "all .2s ease";
+    DomElementAdpter.setTransition(this.element);
+
     timer(100)
       .pipe(take(1))
       .subscribe(() => {
@@ -179,7 +180,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
           .pipe(take(1))
           .subscribe(() => {
             this.isOnFullScreen = setFullScreen;
-            this.element.style.transition = "none";
+            DomElementAdpter.removeTransition(this.element);
 
             timer(100)
               .pipe(take(1))
@@ -189,6 +190,16 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
               });
           });
       });
+  }
+
+  resetPositionsCallback() {
+    return () => {
+      const { x, y } = DomElementAdpter.getTransformValues(
+        this.element.style.transform
+      );
+      this.currentX = x;
+      this.currentY = y;
+    };
   }
 
   dragStartCallBack(drag$: Observable<MouseEvent>) {

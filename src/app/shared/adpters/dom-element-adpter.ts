@@ -17,4 +17,16 @@ export class DomElementAdpter {
   static setZIndex(element: HTMLElement, zIndex: string) {
     element.style.zIndex = zIndex;
   }
+
+  static setTransition(element: HTMLElement, secondTime = 2) {
+    element.style.transition = `all .${secondTime}s ease`;
+  }
+
+  static removeTransition(element: HTMLElement) {
+    element.style.transition = "none";
+  }
+
+  static getNumberFromSize(value: string) {
+    return +value.replace("px", "");
+  }
 }

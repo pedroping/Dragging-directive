@@ -7,4 +7,27 @@
   box-sizing: border-box;
   gap: 5px;
   margin: 0 10px;
+
+  .element {
+    height: calc(100% - 3px);
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-bottom: 3px solid blue;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      background-color: rgb(189, 213, 221);
+    }
+
+    &.hidden {
+      &:hover {
+        background-color: rgb(203, 203, 203);
+      }
+      border-color: lightblue;
+    }
+  }
 }

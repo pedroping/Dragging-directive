@@ -1,4 +1,5 @@
 import { ElementRef } from "@angular/core";
+import { Subject } from "rxjs";
 
 export interface ElementSizes {
   width: string;
@@ -14,6 +15,10 @@ export interface OpenedElement {
   id: number | string;
   element: ElementRef;
   opened: boolean;
+  lastPosition: {
+    x: number;
+    y: number;
+  };
 }
 
 export const GAP = 10;
