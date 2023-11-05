@@ -52,7 +52,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   private initialY = 0;
   private currentX = 0;
   private currentY = 0;
-  private resetPositions$ = new Subject<void>();
   private currentWidth: string | number = "auto";
   private currentHeight: string | number = "auto";
 
@@ -216,7 +215,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.initialX = event.clientX - this.currentX;
       this.initialY = event.clientY - this.currentY;
 
-      const newZIndex = this.lastZIndexService.createNewZIndex();
+      const newZIndex = this.lastZIndexService.createNewZIndex(this.id);
       this.element.classList.add("free-dragging");
 
       DomElementAdpter.setZIndex(this.element, newZIndex);
@@ -242,7 +241,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   clickCallBack() {
     return () => {
-      this.element.style.zIndex = this.lastZIndexService.createNewZIndex();
+      this.element.style.zIndex = this.lastZIndexService.createNewZIndex(
+        this.id
+      );
     };
   }
 
@@ -289,7 +290,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         this.currentX = newX;
       }
 
-      const newZIndex = this.lastZIndexService.createNewZIndex();
+      const newZIndex = this.lastZIndexService.createNewZIndex(this.id);
       DomElementAdpter.setZIndex(this.element, newZIndex);
       DomElementAdpter.setTransform(this.element, this.currentX, this.currentY);
     };

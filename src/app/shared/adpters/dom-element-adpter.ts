@@ -22,6 +22,10 @@ export class DomElementAdpter {
     element.style.transition = `all .${secondTime}s ease`;
   }
 
+  static setOnlyTransformTransition(element: HTMLElement, secondTime = 2) {
+    element.style.transition = `transform .${secondTime}s ease`;
+  }
+
   static removeTransition(element: HTMLElement) {
     element.style.transition = "none";
   }

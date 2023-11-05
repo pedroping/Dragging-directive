@@ -3,13 +3,13 @@ import { BehaviorSubject, Subject, take, timer } from "rxjs";
 import { OpenedElement } from "../models/models";
 import { DomElementAdpter } from "../adpters/dom-element-adpter";
 import { LastZIndexService } from "./last-z-index.service";
+import { UtlisFunctions } from "../adpters/ultlis-adpter";
 
 @Injectable({
   providedIn: "root",
 })
 export class ElementsService {
   openedElements$ = new BehaviorSubject<OpenedElement[]>([]);
-  setPositionsValues$ = new Subject<void>();
 
   constructor(private readonly lastZIndexService: LastZIndexService) {}
 
@@ -31,53 +31,65 @@ export class ElementsService {
     if (!element) return;
 
     element.opened ? this.hideElement(element) : this.showElement(element);
-    element.opened = !element.opened;
   }
 
   showElement(element: OpenedElement) {
+    element.opened = !element.opened;
     const domElement = element.element.nativeElement;
 
-    domElement.style.display = "flex";
-    DomElementAdpter.setTransition(domElement, 5);
+    DomElementAdpter.setOnlyTransformTransition(domElement, 2);
     DomElementAdpter.setZIndex(
       domElement,
-      this.lastZIndexService.createNewZIndex()
+      this.lastZIndexService.createNewZIndex(element.id)
     );
-    DomElementAdpter.setTransform(
-      domElement,
-      element.lastPosition.x,
-      element.lastPosition.y
-    );
+    domElement.style.display = "flex";
 
-    timer(100)
-      .pipe(take(1))
-      .subscribe(() => {
+    UtlisFunctions.timerSubscription(50).subscribe(() => {
+      DomElementAdpter.setTransform(
+        domElement,
+        element.lastPosition.x,
+        element.lastPosition.y
+      );
+
+      UtlisFunctions.timerSubscription(4000).subscribe(() => {
+        domElement.style.display = "flex";
+      });
+
+      UtlisFunctions.timerSubscription(5000).subscribe(() => {
         DomElementAdpter.removeTransition(domElement);
       });
+    });
   }
 
   hideElement(element: OpenedElement) {
     const domElement = element.element.nativeElement;
-    const index = this.findIndexElement(element.id);
 
+    if (element.id != this.lastZIndexService.biggestElementId) {
+      DomElementAdpter.setZIndex(
+        domElement,
+        this.lastZIndexService.createNewZIndex(element.id)
+      );
+      return;
+    }
+
+    const index = this.findIndexElement(element.id);
     const { x, y } = DomElementAdpter.getTransformValues(
       domElement.style.transform
     );
     element.lastPosition = { x, y };
-
-    DomElementAdpter.setTransition(domElement, 5);
+    element.opened = !element.opened;
+    
+    DomElementAdpter.setOnlyTransformTransition(domElement, 5);
     DomElementAdpter.setTransform(
       domElement,
       (index + 1) * 20,
-      window.innerHeight - 60
+      window.innerHeight
     );
 
-    timer(100)
-      .pipe(take(1))
-      .subscribe(() => {
-        DomElementAdpter.removeTransition(domElement);
-        domElement.style.display = "none";
-      });
+    UtlisFunctions.timerSubscription(100).subscribe(() => {
+      DomElementAdpter.removeTransition(domElement);
+      domElement.style.display = "none";
+    });
   }
 
   findElement(id: number | string) {
