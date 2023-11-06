@@ -5,19 +5,16 @@ import { PageControlsComponent } from "./shared/components/page-controls/page-co
 import { FreeDraggingHandleDirective } from "./shared/directives/free-dragging-handle.directive";
 import { FreeDraggingSetFullScreenDirective } from "./shared/directives/free-dragging-set-full-screen.directive";
 import { FreeDraggingDirective } from "./shared/directives/free-dragging.directive";
-import { SharedModule } from "./shared/shared.module";
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
-    SharedModule,
     FreeDraggingDirective,
     FreeDraggingHandleDirective,
     FreeDraggingSetFullScreenDirective,
     PageControlsComponent,
   ],
-  providers: [],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

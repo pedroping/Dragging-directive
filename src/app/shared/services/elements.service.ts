@@ -4,7 +4,6 @@ import { DomElementAdpter } from "../adpters/dom-element-adpter";
 import { UtlisFunctions } from "../adpters/ultlis-adpter";
 import { OpenedElement } from "../models/models";
 import { LastZIndexService } from "./last-z-index.service";
-import { FormArray } from "@angular/forms";
 
 @Injectable({
   providedIn: "root",
