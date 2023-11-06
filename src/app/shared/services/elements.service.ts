@@ -38,7 +38,7 @@ export class ElementsService {
     element.opened = !element.opened;
     const domElement = element.element.nativeElement;
 
-    DomElementAdpter.setOnlyTransformTransition(domElement, 2);
+    DomElementAdpter.setOnlyTransformTransition(domElement, 1);
     DomElementAdpter.setZIndex(
       domElement,
       this.lastZIndexService.createNewZIndex(element.id)
