@@ -4,6 +4,7 @@ import { DomElementAdpter } from "../adpters/dom-element-adpter";
 import { UtlisFunctions } from "../adpters/ultlis-adpter";
 import { OpenedElement } from "../models/models";
 import { LastZIndexService } from "./last-z-index.service";
+import { FormArray } from "@angular/forms";
 
 @Injectable({
   providedIn: "root",
@@ -70,7 +71,10 @@ export class ElementsService {
     const isBehindAnotherElement = this.openedElements
       .filter(item => item.id != element.id)
       .filter(item => !!item.opened)
-      .map(item => this.elementAboveOther(item.element.nativeElement, domElement))
+      .map(item =>
+        this.elementAboveOther(item.element.nativeElement, domElement)
+        && this.validateFullScreen(item, element)
+      )
       .find(result => !!result)
 
     const onFullScreenAndNotBigger = element.isFullScreen && !isHiggerElement
@@ -127,9 +131,26 @@ export class ElementsService {
     return element.id;
   }
 
+  validateFullScreen(element1: OpenedElement, element2: OpenedElement) {
+    if (element1.isFullScreen) {
+      const zIndex1 = element1.element.nativeElement.style.zIndex || 0
+      const zIndex2 = element2.element.nativeElement.style.zIndex || 0
+      return zIndex1 > zIndex2
+    }
+    return false
+  }
+
   elementAboveOther(element1: HTMLElement, element2: HTMLElement) {
+
     const domRect1 = element1.getBoundingClientRect();
     const domRect2 = element2.getBoundingClientRect();
+
+    console.log(element1.id, element2.id, !(
+      domRect1.top > domRect2.bottom ||
+      domRect1.right < domRect2.left ||
+      domRect1.bottom < domRect2.top ||
+      domRect1.left > domRect2.right
+    ));
 
     return !(
       domRect1.top > domRect2.bottom ||
