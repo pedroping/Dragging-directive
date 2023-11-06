@@ -11,7 +11,7 @@ import { UtlisFunctions } from "../adpters/ultlis-adpter";
 export class ElementsService {
   openedElements$ = new BehaviorSubject<OpenedElement[]>([]);
 
-  constructor(private readonly lastZIndexService: LastZIndexService) {}
+  constructor(private readonly lastZIndexService: LastZIndexService) { }
 
   pushElement(element: ElementRef, id: number | string) {
     const otherElements = this.openedElements$.value;
@@ -51,11 +51,8 @@ export class ElementsService {
         element.lastPosition.y
       );
 
-      UtlisFunctions.timerSubscription(4000).subscribe(() => {
+      UtlisFunctions.timerSubscription(1000).subscribe(() => {
         domElement.style.display = "flex";
-      });
-
-      UtlisFunctions.timerSubscription(5000).subscribe(() => {
         DomElementAdpter.removeTransition(domElement);
       });
     });
@@ -64,7 +61,24 @@ export class ElementsService {
   hideElement(element: OpenedElement) {
     const domElement = element.element.nativeElement;
 
-    if (element.id != this.lastZIndexService.biggestElementId) {
+    const { x, y } = DomElementAdpter.getTransformValues(domElement.style.transform);
+ 
+    const boundingRect = domElement.getBoundingClientRect();
+    const left = boundingRect.left + 1
+    const right = boundingRect.right - 1
+    const top = boundingRect.top + 1
+    const bottom = boundingRect.bottom - 1
+
+    const elementPoints = [
+      document.elementFromPoint(left, top),
+      document.elementFromPoint(right, top),
+      document.elementFromPoint(left, bottom),
+      document.elementFromPoint(right, bottom)
+    ].filter(element => !!element.id)
+
+    const isBehindAnotherElement = elementPoints.find(elementItem => elementItem.id != element.id)
+
+    if (isBehindAnotherElement) {
       DomElementAdpter.setZIndex(
         domElement,
         this.lastZIndexService.createNewZIndex(element.id)
@@ -73,12 +87,9 @@ export class ElementsService {
     }
 
     const index = this.findIndexElement(element.id);
-    const { x, y } = DomElementAdpter.getTransformValues(
-      domElement.style.transform
-    );
     element.lastPosition = { x, y };
     element.opened = !element.opened;
-    
+
     DomElementAdpter.setOnlyTransformTransition(domElement, 5);
     DomElementAdpter.setTransform(
       domElement,
