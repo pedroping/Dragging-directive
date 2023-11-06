@@ -11,7 +11,7 @@ import { LastZIndexService } from "./last-z-index.service";
 export class ElementsService {
   openedElements$ = new BehaviorSubject<OpenedElement[]>([]);
 
-  constructor(private readonly lastZIndexService: LastZIndexService) { }
+  constructor(private readonly lastZIndexService: LastZIndexService) {}
 
   pushElement(element: ElementRef, id: number | string) {
     const otherElements = this.openedElements$.value;
@@ -20,7 +20,7 @@ export class ElementsService {
       id: id,
       opened: true,
       lastPosition: { x: 0, y: 0 },
-      isFullScreen: false
+      isFullScreen: false,
     };
 
     this.openedElements$.next([...otherElements, newElement]);
@@ -62,24 +62,33 @@ export class ElementsService {
   hideElement(element: OpenedElement) {
     const domElement = element.element.nativeElement;
 
-    const { x, y } = DomElementAdpter.getTransformValues(domElement.style.transform);
+    const { x, y } = DomElementAdpter.getTransformValues(
+      domElement.style.transform
+    );
     const isHiggerElement = element.id == this.higgestElementId();
 
-    const isOnlyElement = this.openedElements.filter(item => item != element).filter(item => !!item.opened);
+    const isOnlyElement = this.openedElements
+      .filter((item) => item != element)
+      .filter((item) => !!item.opened);
 
     const isBehindAnotherElement = this.openedElements
-      .filter(item => item.id != element.id)
-      .filter(item => !!item.opened)
-      .map(item =>
-        this.elementAboveOther(item.element.nativeElement, domElement)
-        && this.validateFullScreen(item, element)
+      .filter((item) => item.id != element.id)
+      .filter((item) => !!item.opened)
+      .map(
+        (item) =>
+          this.elementAboveOther(item.element.nativeElement, domElement) &&
+          this.validateFullScreen(item, element)
       )
-      .find(result => !!result)
+      .find((result) => !!result);
 
-    const onFullScreenAndNotBigger = element.isFullScreen && !isHiggerElement
+    const onFullScreenAndNotBigger = element.isFullScreen && !isHiggerElement;
     const hasNoOtherElement = isOnlyElement.length <= 0;
 
-    if (((isBehindAnotherElement && !isHiggerElement) || onFullScreenAndNotBigger) && !hasNoOtherElement) {
+    if (
+      ((isBehindAnotherElement && !isHiggerElement) ||
+        onFullScreenAndNotBigger) &&
+      !hasNoOtherElement
+    ) {
       DomElementAdpter.setZIndex(
         domElement,
         this.lastZIndexService.createNewZIndex(element.id)
@@ -116,40 +125,30 @@ export class ElementsService {
     return this.openedElements$.value;
   }
 
-
   higgestElementId() {
-    const idsAndZIndez = this.openedElements.filter(item => !!item.opened).map(item => ({
-      id: item.id,
-      zIndez: item.element.nativeElement.style.zIndex || 0
-    }))
+    const idsAndZIndez = this.openedElements
+      .filter((item) => !!item.opened)
+      .map((item) => ({
+        id: item.id,
+        zIndez: item.element.nativeElement.style.zIndex || 0,
+      }));
 
-    const maxZindex = Math.max(...idsAndZIndez.map(item => item.zIndez))
+    const maxZindex = Math.max(...idsAndZIndez.map((item) => item.zIndez));
 
-    const element = idsAndZIndez.find(item => item.zIndez == maxZindex)
+    const element = idsAndZIndez.find((item) => item.zIndez == maxZindex);
 
     return element.id;
   }
 
   validateFullScreen(element1: OpenedElement, element2: OpenedElement) {
-    if (element1.isFullScreen) {
-      const zIndex1 = element1.element.nativeElement.style.zIndex || 0
-      const zIndex2 = element2.element.nativeElement.style.zIndex || 0
-      return zIndex1 > zIndex2
-    }
-    return false
+    const zIndex1 = element1.element.nativeElement.style.zIndex || 0;
+    const zIndex2 = element2.element.nativeElement.style.zIndex || 0;
+    return zIndex1 > zIndex2;
   }
 
   elementAboveOther(element1: HTMLElement, element2: HTMLElement) {
-
     const domRect1 = element1.getBoundingClientRect();
     const domRect2 = element2.getBoundingClientRect();
-
-    console.log(element1.id, element2.id, !(
-      domRect1.top > domRect2.bottom ||
-      domRect1.right < domRect2.left ||
-      domRect1.bottom < domRect2.top ||
-      domRect1.left > domRect2.right
-    ));
 
     return !(
       domRect1.top > domRect2.bottom ||
