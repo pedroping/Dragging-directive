@@ -1,5 +1,4 @@
 import { ElementRef } from "@angular/core";
-import { Subject } from "rxjs";
 
 export interface ElementSizes {
   width: string;
