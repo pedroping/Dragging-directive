@@ -65,22 +65,13 @@ export class ElementsService {
     const { x, y } = DomElementAdpter.getTransformValues(domElement.style.transform);
     const isHiggerElement = element.id == this.lastZIndexService.biggestElementId;
 
-    const boundingRect = domElement.getBoundingClientRect();
-    const left = boundingRect.left + 1
-    const right = boundingRect.right - 1
-    const top = boundingRect.top + 1
-    const bottom = boundingRect.bottom - 1
-
     const isOnlyElement = this.openedElements.filter(item => item != element).filter(item => !!item.opened);
 
-    const elementPoints = [
-      document.elementFromPoint(left, top),
-      document.elementFromPoint(right, top),
-      document.elementFromPoint(left, bottom),
-      document.elementFromPoint(right, bottom)
-    ].filter(element => !!element.id)
+    const isBehindAnotherElement = this.openedElements
+      .filter(item => item.id != element.id)
+      .map(item => this.elementAboveOther(item.element.nativeElement, domElement))
+      .find(result => !!result)
 
-    const isBehindAnotherElement = elementPoints.find(elementItem => elementItem.id != element.id)
     const onFullScreenAndNotBigger = element.isFullScreen && !isHiggerElement
     const hasNoOtherElement = isOnlyElement.length <= 0;
 
@@ -119,5 +110,17 @@ export class ElementsService {
 
   get openedElements() {
     return this.openedElements$.value;
+  }
+
+  elementAboveOther(element1: HTMLElement, element2: HTMLElement) {
+    const domRect1 = element1.getBoundingClientRect();
+    const domRect2 = element2.getBoundingClientRect();
+
+    return !(
+      domRect1.top > domRect2.bottom ||
+      domRect1.right < domRect2.left ||
+      domRect1.bottom < domRect2.top ||
+      domRect1.left > domRect2.right
+    );
   }
 }
