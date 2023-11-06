@@ -8,18 +8,19 @@ import {
 } from "@angular/core";
 import { Observable, Subject, Subscription, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, filter, take, takeUntil } from "rxjs/operators";
+import { DomElementAdpter } from "../adpters/dom-element-adpter";
 import {
   DEFAULT_DRAGGING_BOUNDARY_QUERY,
   ElementSizes,
   ElementSizesNum,
   GAP,
   OBSERVE_CONFIG,
+  OpenedElement,
 } from "../models/models";
 import { ElementsService } from "../services/elements.service";
 import { LastZIndexService } from "../services/last-z-index.service";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
 import { FreeDraggingSetFullScreenDirective } from "./free-dragging-set-full-screen.directive";
-import { DomElementAdpter } from "../adpters/dom-element-adpter";
 @Directive({
   selector: "[appFreeDragging]",
   exportAs: "appFreeDragging",
@@ -54,12 +55,13 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   private currentY = 0;
   private currentWidth: string | number = "auto";
   private currentHeight: string | number = "auto";
+  private elementReference: OpenedElement;
 
   constructor(
     private elementRef: ElementRef,
     private lastZIndexService: LastZIndexService,
     private elementsService: ElementsService
-  ) {}
+  ) { }
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
@@ -84,7 +86,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   setElement() {
     const element = this.elementRef;
     const id = this.id;
-    this.elementsService.pushElement(element, id);
+    this.elementReference = this.elementsService.pushElement(element, id);
   }
 
   initDrag(): void {
@@ -179,6 +181,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
           .pipe(take(1))
           .subscribe(() => {
             this.isOnFullScreen = setFullScreen;
+            this.elementReference.isFullScreen = this.isOnFullScreen;
             DomElementAdpter.removeTransition(this.element);
 
             timer(100)
@@ -186,6 +189,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
               .subscribe(() => {
                 this.isSettingFullScreen = false;
                 this.isOnFullScreen = setFullScreen;
+                this.elementReference.isFullScreen = this.isOnFullScreen;
               });
           });
       });
@@ -268,6 +272,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   resizeCallBack() {
     return () => {
       this.isOnFullScreen = false;
+      this.elementReference.isFullScreen = this.isOnFullScreen;
 
       const { x, y } = DomElementAdpter.getTransformValues(
         this.element.style.transform

@@ -19,6 +19,7 @@ export interface OpenedElement {
     x: number;
     y: number;
   };
+  isFullScreen: boolean
 }
 
 export const GAP = 10;

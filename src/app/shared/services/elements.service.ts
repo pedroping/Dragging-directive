@@ -1,9 +1,9 @@
 import { ElementRef, Injectable } from "@angular/core";
-import { BehaviorSubject, Subject, take, timer } from "rxjs";
-import { OpenedElement } from "../models/models";
+import { BehaviorSubject } from "rxjs";
 import { DomElementAdpter } from "../adpters/dom-element-adpter";
-import { LastZIndexService } from "./last-z-index.service";
 import { UtlisFunctions } from "../adpters/ultlis-adpter";
+import { OpenedElement } from "../models/models";
+import { LastZIndexService } from "./last-z-index.service";
 
 @Injectable({
   providedIn: "root",
@@ -20,6 +20,7 @@ export class ElementsService {
       id: id,
       opened: true,
       lastPosition: { x: 0, y: 0 },
+      isFullScreen: false
     };
 
     this.openedElements$.next([...otherElements, newElement]);
@@ -70,15 +71,20 @@ export class ElementsService {
     const top = boundingRect.top + 1
     const bottom = boundingRect.bottom - 1
 
+    const isOnlyElement = this.openedElements.filter(item => item != element).filter(item => !!item.opened);
+
     const elementPoints = [
       document.elementFromPoint(left, top),
       document.elementFromPoint(right, top),
       document.elementFromPoint(left, bottom),
       document.elementFromPoint(right, bottom)
     ].filter(element => !!element.id)
-    const isBehindAnotherElement = elementPoints.find(elementItem => elementItem.id != element.id)
 
-    if (isBehindAnotherElement && !isHiggerElement) {
+    const isBehindAnotherElement = elementPoints.find(elementItem => elementItem.id != element.id)
+    const onFullScreenAndNotBigger = element.isFullScreen && !isHiggerElement
+    const hasNoOtherElement = isOnlyElement.length <= 0;
+
+    if (((isBehindAnotherElement && !isHiggerElement) || onFullScreenAndNotBigger) && !hasNoOtherElement) {
       DomElementAdpter.setZIndex(
         domElement,
         this.lastZIndexService.createNewZIndex(element.id)
