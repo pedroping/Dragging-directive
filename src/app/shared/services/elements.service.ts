@@ -62,7 +62,8 @@ export class ElementsService {
     const domElement = element.element.nativeElement;
 
     const { x, y } = DomElementAdpter.getTransformValues(domElement.style.transform);
- 
+    const isHiggerElement = element.id == this.lastZIndexService.biggestElementId;
+
     const boundingRect = domElement.getBoundingClientRect();
     const left = boundingRect.left + 1
     const right = boundingRect.right - 1
@@ -75,10 +76,9 @@ export class ElementsService {
       document.elementFromPoint(left, bottom),
       document.elementFromPoint(right, bottom)
     ].filter(element => !!element.id)
-
     const isBehindAnotherElement = elementPoints.find(elementItem => elementItem.id != element.id)
 
-    if (isBehindAnotherElement) {
+    if (isBehindAnotherElement && !isHiggerElement) {
       DomElementAdpter.setZIndex(
         domElement,
         this.lastZIndexService.createNewZIndex(element.id)
