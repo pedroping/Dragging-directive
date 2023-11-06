@@ -63,12 +63,13 @@ export class ElementsService {
     const domElement = element.element.nativeElement;
 
     const { x, y } = DomElementAdpter.getTransformValues(domElement.style.transform);
-    const isHiggerElement = element.id == this.lastZIndexService.biggestElementId;
+    const isHiggerElement = element.id == this.higgestElementId();
 
     const isOnlyElement = this.openedElements.filter(item => item != element).filter(item => !!item.opened);
 
     const isBehindAnotherElement = this.openedElements
       .filter(item => item.id != element.id)
+      .filter(item => !!item.opened)
       .map(item => this.elementAboveOther(item.element.nativeElement, domElement))
       .find(result => !!result)
 
@@ -110,6 +111,20 @@ export class ElementsService {
 
   get openedElements() {
     return this.openedElements$.value;
+  }
+
+
+  higgestElementId() {
+    const idsAndZIndez = this.openedElements.filter(item => !!item.opened).map(item => ({
+      id: item.id,
+      zIndez: item.element.nativeElement.style.zIndex || 0
+    }))
+
+    const maxZindex = Math.max(...idsAndZIndez.map(item => item.zIndez))
+
+    const element = idsAndZIndez.find(item => item.zIndez == maxZindex)
+
+    return element.id;
   }
 
   elementAboveOther(element1: HTMLElement, element2: HTMLElement) {

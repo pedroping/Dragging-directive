@@ -43,6 +43,29 @@
   />
 </div>
 
+<div
+  class="example-box"
+  appFreeDragging
+  [heightDrecrease]="60"
+  [baseSizes]="baseSizes"
+  [customX]="890"
+  [customY]="750"
+  id="Page 03"
+>
+  Page 03
+
+  <div class="example-handle" appFreeDraggingHandle>
+    <img src="assets/move.svg" alt="drag-img" width="24" height="24" />
+  </div>
+  <img
+    src="assets/move.svg"
+    alt="full-screen-image"
+    width="24"
+    height="24"
+    appFreeDraggingSetFullScreen
+  />
+</div>
+
 <footer>
   <app-page-controls></app-page-controls>
 </footer>
