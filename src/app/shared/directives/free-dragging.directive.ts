@@ -7,9 +7,10 @@ import {
   OnDestroy,
   inject,
 } from "@angular/core";
-import { Observable, Subject, Subscription, fromEvent, timer } from "rxjs";
-import { distinctUntilChanged, filter, take, takeUntil } from "rxjs/operators";
+import { Observable, Subject, Subscription, fromEvent } from "rxjs";
+import { distinctUntilChanged, filter, takeUntil } from "rxjs/operators";
 import { DomElementAdpter } from "../adpters/dom-element-adpter";
+import { UtlisFunctions } from "../adpters/ultlis-adpter";
 import {
   DEFAULT_DRAGGING_BOUNDARY_QUERY,
   ElementSizes,
@@ -22,17 +23,14 @@ import { ElementsService } from "../services/elements.service";
 import { LastZIndexService } from "../services/last-z-index.service";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
 import { FreeDraggingSetFullScreenDirective } from "./free-dragging-set-full-screen.directive";
-import { UtlisFunctions } from "../adpters/ultlis-adpter";
 @Directive({
   selector: "[appFreeDragging]",
-  exportAs: "appFreeDragging",
   standalone: true,
 })
 export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
-
-  private readonly elementRef = inject(ElementRef)
-  private readonly lastZIndexService = inject(LastZIndexService)
-  private readonly elementsService = inject(ElementsService)
+  private readonly elementRef = inject(ElementRef);
+  private readonly lastZIndexService = inject(LastZIndexService);
+  private readonly elementsService = inject(ElementsService);
 
   @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
   handle: ElementRef;
@@ -155,9 +153,11 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
     if (!this.isOnFullScreen) {
       this.currentWidth =
-        this.element.style.width.replace("px", "") || this.baseSizes.width;
+        DomElementAdpter.getNumberFromSize(this.element.style.width) ||
+        this.baseSizes.width;
       this.currentHeight =
-        this.element.style.height.replace("px", "") || this.baseSizes.height;
+        DomElementAdpter.getNumberFromSize(this.element.style.height) ||
+        this.baseSizes.height;
     }
 
     this.isSettingFullScreen = true;
@@ -171,26 +171,23 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
     DomElementAdpter.setTransition(this.element);
 
-    UtlisFunctions.timerSubscription(100)
-      .subscribe(() => {
-        this.element.style.width = width + "px";
-        this.element.style.height = height + "px";
-        this.element.style.transform = transform;
+    UtlisFunctions.timerSubscription(100).subscribe(() => {
+      this.element.style.width = width + "px";
+      this.element.style.height = height + "px";
+      this.element.style.transform = transform;
+    });
 
-        UtlisFunctions.timerSubscription(100)
-          .subscribe(() => {
-            this.isOnFullScreen = setFullScreen;
-            this.elementReference.isFullScreen = this.isOnFullScreen;
-            DomElementAdpter.removeTransition(this.element);
+    UtlisFunctions.timerSubscription(200).subscribe(() => {
+      this.isOnFullScreen = setFullScreen;
+      this.elementReference.isFullScreen = this.isOnFullScreen;
+      DomElementAdpter.removeTransition(this.element);
+    });
 
-            UtlisFunctions.timerSubscription(100)
-              .subscribe(() => {
-                this.isSettingFullScreen = false;
-                this.isOnFullScreen = setFullScreen;
-                this.elementReference.isFullScreen = this.isOnFullScreen;
-              });
-          });
-      });
+    UtlisFunctions.timerSubscription(300).subscribe(() => {
+      this.isSettingFullScreen = false;
+      this.isOnFullScreen = setFullScreen;
+      this.elementReference.isFullScreen = this.isOnFullScreen;
+    });
   }
 
   resetPositionsCallback() {
@@ -319,10 +316,10 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       }
 
       const width = this.element.style.width
-        ? +this.element.style.width.replace("px", "")
+        ? DomElementAdpter.getNumberFromSize(this.element.style.width)
         : this.baseSizes.width;
       const height = this.element.style.height
-        ? +this.element.style.height.replace("px", "")
+        ? DomElementAdpter.getNumberFromSize(this.element.style.height)
         : this.baseSizes.height;
       const maxX = window.innerWidth - width;
       const maxY = window.innerHeight - this.heightDrecrease - height;
@@ -340,13 +337,11 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     }>
   ) {
     return () => {
-      const width = +this.elementRef.nativeElement.style.width.replace(
-        "px",
-        ""
+      const width = DomElementAdpter.getNumberFromSize(
+        this.elementRef.nativeElement.style.width
       );
-      const height = +this.elementRef.nativeElement.style.height.replace(
-        "px",
-        ""
+      const height = DomElementAdpter.getNumberFromSize(
+        this.elementRef.nativeElement.style.height
       );
 
       resizeSubject$.next({
