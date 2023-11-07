@@ -32,11 +32,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   private readonly lastZIndexService = inject(LastZIndexService);
   private readonly elementsService = inject(ElementsService);
 
-  @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
-  handle: ElementRef;
-  @ContentChild(FreeDraggingSetFullScreenDirective, { read: ElementRef })
-  setFullScreen: ElementRef;
-
   @Input() boundaryQuery = DEFAULT_DRAGGING_BOUNDARY_QUERY;
   @Input() heightDrecrease = 0;
   @Input() widthDrecrease = 0;
@@ -46,6 +41,11 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   @Input() customY = 0;
   @Input() id: string | number;
 
+  @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
+  handle: ElementRef;
+  @ContentChild(FreeDraggingSetFullScreenDirective, { read: ElementRef })
+  setFullScreen: ElementRef;
+  
   private draggingBoundaryElement: HTMLElement | HTMLBodyElement;
   private subscriptions: Subscription[] = [];
   private stopTaking$ = new Subject<void>();
