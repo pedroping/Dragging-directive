@@ -5,6 +5,7 @@ import {
   ElementRef,
   Input,
   OnDestroy,
+  inject,
 } from "@angular/core";
 import { Observable, Subject, Subscription, fromEvent, timer } from "rxjs";
 import { distinctUntilChanged, filter, take, takeUntil } from "rxjs/operators";
@@ -21,12 +22,18 @@ import { ElementsService } from "../services/elements.service";
 import { LastZIndexService } from "../services/last-z-index.service";
 import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
 import { FreeDraggingSetFullScreenDirective } from "./free-dragging-set-full-screen.directive";
+import { UtlisFunctions } from "../adpters/ultlis-adpter";
 @Directive({
   selector: "[appFreeDragging]",
   exportAs: "appFreeDragging",
   standalone: true,
 })
 export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
+
+  private readonly elementRef = inject(ElementRef)
+  private readonly lastZIndexService = inject(LastZIndexService)
+  private readonly elementsService = inject(ElementsService)
+
   @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
   handle: ElementRef;
   @ContentChild(FreeDraggingSetFullScreenDirective, { read: ElementRef })
@@ -56,12 +63,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   private currentWidth: string | number = "auto";
   private currentHeight: string | number = "auto";
   private elementReference: OpenedElement;
-
-  constructor(
-    private elementRef: ElementRef,
-    private lastZIndexService: LastZIndexService,
-    private elementsService: ElementsService
-  ) { }
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
@@ -170,22 +171,19 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
     DomElementAdpter.setTransition(this.element);
 
-    timer(100)
-      .pipe(take(1))
+    UtlisFunctions.timerSubscription(100)
       .subscribe(() => {
         this.element.style.width = width + "px";
         this.element.style.height = height + "px";
         this.element.style.transform = transform;
 
-        timer(100)
-          .pipe(take(1))
+        UtlisFunctions.timerSubscription(100)
           .subscribe(() => {
             this.isOnFullScreen = setFullScreen;
             this.elementReference.isFullScreen = this.isOnFullScreen;
             DomElementAdpter.removeTransition(this.element);
 
-            timer(100)
-              .pipe(take(1))
+            UtlisFunctions.timerSubscription(100)
               .subscribe(() => {
                 this.isSettingFullScreen = false;
                 this.isOnFullScreen = setFullScreen;

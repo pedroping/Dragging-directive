@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { ElementsService } from "../../services/elements.service";
 import { BehaviorSubject } from "rxjs";
 import { OpenedElement } from "../../models/models";
@@ -12,9 +12,9 @@ import { CommonModule } from "@angular/common";
   imports: [CommonModule],
 })
 export class PageControlsComponent implements OnInit {
-  openedElements$: BehaviorSubject<OpenedElement[]>;
+  private readonly elementsService = inject(ElementsService)
 
-  constructor(private readonly elementsService: ElementsService) {}
+  openedElements$: BehaviorSubject<OpenedElement[]>;
 
   ngOnInit() {
     this.openedElements$ = this.elementsService.openedElements$;
