@@ -53,8 +53,7 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": [],
-            "webWorkerTsConfig": "tsconfig.worker.json"
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -106,7 +105,6 @@
       }
     }
   },
-  "defaultProject": "angular-free-dragging",
   "cli": {
     "analytics": false
   }

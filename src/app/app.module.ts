@@ -18,5 +18,3 @@ import { FreeDraggingDirective } from "./shared/directives/free-dragging.directi
   bootstrap: [AppComponent],
 })
 export class AppModule {}
-
-// ng g web-worker drag-calculator
