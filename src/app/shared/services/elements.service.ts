@@ -103,7 +103,7 @@ hideElement(element: OpenedElement) {
   DomElementAdpter.setTransform(
     domElement,
     (index + 1) * 20,
-    window.innerHeight
+    window.innerHeight * 2.5
   );
 
   UtlisFunctions.timerSubscription(100).subscribe(() => {
