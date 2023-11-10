@@ -1,30 +1,34 @@
 <div
   class="example-box"
+  *appPageCreator="let elementReference; Id: 'Page 01'"
   appFreeDragging
-  [heightDrecrease]="60"
-  [baseSizes]="baseSizes"
   [customX]="90"
   [customY]="65"
-  id="Page 01"
+  [heightDrecrease]="60"
+  [baseSizes]="baseSizes"
+  [elementReference]="elementReference"
+
 >
   Page 01
-
+  
   <div class="handle-move" appFreeDraggingHandle></div>
-
+  
   <div class="handles">
     <img src="assets/minimize-screen.png" alt="drag-img" width="24" height="24" appFreeDraggingMinimize />
     <img src="assets/full-screen.svg" alt="full-screen-image" width="24" height="24" appFreeDraggingSetFullScreen/>
   </div>
-  
+    
 </div>
+
 
 <div
   class="example-box"
+  *appPageCreator="let elementReference; Id: 'Page 02'"
   appFreeDragging
   [heightDrecrease]="60"
   [baseSizes]="baseSizes"
   [startOnMiddle]="true"
-  id="Page 02"
+  [elementReference]="elementReference"
 >
   Page 02
   <div class="handle-move" appFreeDraggingHandle></div>
@@ -43,7 +47,8 @@
   [baseSizes]="baseSizes"
   [customX]="890"
   [customY]="750"
-  id="Page 03"
+  [elementReference]="elementReference"
+  *appPageCreator="let elementReference; Id: 'Page 03', StartClosed: true"
 >
   Page 03
   <div class="handle-move" appFreeDraggingHandle></div>

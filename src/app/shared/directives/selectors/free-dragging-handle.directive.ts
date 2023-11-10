@@ -22,6 +22,6 @@ export class FreeDraggingHandleDirective implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.mouseUpSub.unsubscribe();
+    this.mouseUpSub?.unsubscribe();
   }
 }

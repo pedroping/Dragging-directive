@@ -1,6 +1,7 @@
 <ng-container *ngFor="let openedElement of openedElements$ | async">
   <div
     class="element"
+    *ngIf="!openedElement.closed"
     [class.hidden]="!openedElement.opened"
     (click)="handleElementClick(openedElement.id)"
   >

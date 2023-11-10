@@ -40,7 +40,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   @Input() startOnMiddle = false;
   @Input() customX = 0;
   @Input() customY = 0;
-  @Input() id: string | number;
+  @Input() elementReference: OpenedElement;
 
   @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
   handle: ElementRef;
@@ -65,7 +65,6 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   private currentY = 0;
   private currentWidth: string | number = "auto";
   private currentHeight: string | number = "auto";
-  private elementReference: OpenedElement;
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
@@ -80,17 +79,11 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   startElementDomain() {
     this.element = this.elementRef.nativeElement as HTMLElement;
+    this.elementReference.element = this.elementRef;
     this.handleElement = this.handle?.nativeElement || this.element;
     this.initDrag();
     this.setCustomStart();
     if (this.startOnMiddle) this.setToMiddle();
-    this.setElement();
-  }
-
-  setElement() {
-    const element = this.elementRef;
-    const id = this.id;
-    this.elementReference = this.elementsService.pushElement(element, id);
   }
 
   initDrag(): void {
@@ -225,7 +218,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.initialX = event.clientX - this.currentX;
       this.initialY = event.clientY - this.currentY;
 
-      const newZIndex = this.lastZIndexService.createNewZIndex(this.id);
+      const newZIndex = this.lastZIndexService.createNewZIndex(this.elementReference.id);
       this.element.classList.add("free-dragging");
 
       DomElementAdpter.setZIndex(this.element, newZIndex);
@@ -252,7 +245,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   clickCallBack() {
     return () => {
       this.element.style.zIndex = this.lastZIndexService.createNewZIndex(
-        this.id
+        this.elementReference.id
       );
     };
   }
@@ -307,7 +300,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         this.currentX = newX;
       }
 
-      const newZIndex = this.lastZIndexService.createNewZIndex(this.id);
+      const newZIndex = this.lastZIndexService.createNewZIndex(this.elementReference.id);
       DomElementAdpter.setZIndex(this.element, newZIndex);
       DomElementAdpter.setTransform(this.element, this.currentX, this.currentY);
     };

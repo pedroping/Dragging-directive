@@ -12,7 +12,7 @@ export class ElementsService {
   private readonly lastZIndexService = inject(LastZIndexService);
   openedElements$ = new BehaviorSubject<OpenedElement[]>([]);
 
-  pushElement(element: ElementRef, id: number | string) {
+  pushElement(element: ElementRef, id: number | string, closed: boolean) {
     const otherElements = this.openedElements$.value;
     const newElement: OpenedElement = {
       element: element,
@@ -20,6 +20,7 @@ export class ElementsService {
       opened: true,
       lastPosition: { x: 0, y: 0 },
       isFullScreen: false,
+      closed: closed
     };
 
     this.openedElements$.next([...otherElements, newElement]);
@@ -28,7 +29,7 @@ export class ElementsService {
 
 handleElementClick(id: number | string) {
   const element = this.findElement(id);
-  if (!element) return;
+  if (!element || element.closed) return;
 
   element.opened ? this.hideElement(element) : this.showElement(element);
 }
@@ -68,11 +69,11 @@ hideElement(element: OpenedElement) {
 
   const isOnlyElement = this.openedElements
     .filter((item) => item != element)
-    .filter((item) => !!item.opened);
+    .filter((item) => !!item.opened && !item.closed);
 
   const isBehindAnotherElement = this.openedElements
     .filter((item) => item.id != element.id)
-    .filter((item) => !!item.opened)
+    .filter((item) => !!item.opened && !item.closed)
     .map(
       (item) =>
         this.elementAboveOther(item.element.nativeElement, domElement) &&
@@ -126,7 +127,7 @@ findIndexElement(id: number | string) {
 
 higgestElementId() {
   const idsAndZIndez = this.openedElements
-    .filter((item) => !!item.opened)
+    .filter((item) => !!item.opened && !item.closed)
     .map((item) => ({
       id: item.id,
       zIndez: item.element.nativeElement.style.zIndex || 0,

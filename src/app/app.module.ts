@@ -6,6 +6,7 @@ import { FreeDraggingHandleDirective } from "./shared/directives/selectors/free-
 import { FreeDraggingSetFullScreenDirective } from "./shared/directives/selectors/free-dragging-set-full-screen.directive";
 import { FreeDraggingDirective } from "./shared/directives/free-dragging.directive";
 import { FreeDraggingMinimizeDirective } from "./shared/directives/selectors/free-dragging-minimize.directive";
+import { PageCreatorDirective } from "./shared/directives/page-creator.directive";
 
 @NgModule({
   declarations: [AppComponent],
@@ -15,6 +16,7 @@ import { FreeDraggingMinimizeDirective } from "./shared/directives/selectors/fre
     FreeDraggingHandleDirective,
     FreeDraggingMinimizeDirective,
     FreeDraggingSetFullScreenDirective,
+    PageCreatorDirective,
     PageControlsComponent,
   ],
   bootstrap: [AppComponent],
