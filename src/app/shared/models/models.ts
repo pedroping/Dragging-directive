@@ -22,8 +22,6 @@ export interface OpenedElement {
 }
 
 export const GAP = 10;
-export const INITIAL_Z_INDEX = "1";
-export const MAX_Z_INDEX = "100";
 export const OBSERVE_CONFIG = {
   attributes: true,
   childList: true,
