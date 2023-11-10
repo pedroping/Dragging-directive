@@ -1,20 +1,27 @@
-import { Directive, HostListener } from "@angular/core";
+import { Directive, HostListener, OnDestroy, OnInit } from "@angular/core";
+import { Subscription, from, fromEvent } from "rxjs";
 
 @Directive({
   selector: "[appFreeDraggingHandle]",
   standalone: true
 })
-export class FreeDraggingHandleDirective {
+export class FreeDraggingHandleDirective implements OnInit, OnDestroy {
 
-  private _body = document.querySelector('body')
+  private _body = document.querySelector('body');
+  private mouseUpSub: Subscription;
 
   @HostListener('mousedown') private onMouseDown() {
     this._body.style.cursor = 'grabbing';
   }
 
-  @HostListener('mouseup')
-  @HostListener('mouseleave')
-  private onMouseUp() {
-    this._body.style.cursor = 'default';
+  ngOnInit(): void {
+    this.mouseUpSub = fromEvent(this._body, 'mouseup')
+      .subscribe(() => {
+        this._body.style.cursor = 'default';
+      })
+  }
+
+  ngOnDestroy(): void {
+    this.mouseUpSub.unsubscribe();
   }
 }
