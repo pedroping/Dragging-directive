@@ -21,8 +21,9 @@ import {
 } from "../models/models";
 import { ElementsService } from "../services/elements.service";
 import { LastZIndexService } from "../services/last-z-index.service";
-import { FreeDraggingHandleDirective } from "./free-dragging-handle.directive";
-import { FreeDraggingSetFullScreenDirective } from "./free-dragging-set-full-screen.directive";
+import { FreeDraggingHandleDirective } from "./selectors/free-dragging-handle.directive";
+import { FreeDraggingSetFullScreenDirective } from "./selectors/free-dragging-set-full-screen.directive";
+import { FreeDraggingMinimizeDirective } from "./selectors/free-dragging-minimize.directive";
 @Directive({
   selector: "[appFreeDragging]",
   standalone: true,
@@ -43,9 +44,13 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
   handle: ElementRef;
+
   @ContentChild(FreeDraggingSetFullScreenDirective, { read: ElementRef })
   setFullScreen: ElementRef;
-  
+
+  @ContentChild(FreeDraggingMinimizeDirective, { read: ElementRef })
+  minimizeScrren: ElementRef;
+
   private draggingBoundaryElement: HTMLElement | HTMLBodyElement;
   private subscriptions: Subscription[] = [];
   private stopTaking$ = new Subject<void>();
@@ -100,6 +105,10 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.setFullScreen?.nativeElement,
       "click"
     );
+    const minimuzeClick$ = fromEvent(
+      this.minimizeScrren?.nativeElement,
+      "click"
+    );
     const click$ = fromEvent<MouseEvent>(
       this.elementRef.nativeElement,
       "click"
@@ -112,6 +121,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       filter(() => !this.isSettingFullScreen)
     );
 
+    const minimizeClick = minimuzeClick$.subscribe(this.minimizeScreenCallBack());
     const windowResizeSub = windowResize$.subscribe(this.winResizeCallBack());
     const dragStartSub = dragStart$.subscribe(this.dragStartCallBack(drag$));
     const dragEndSub = dragEnd$.subscribe(this.dragEndCallBack());
@@ -133,6 +143,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       clickSub,
       windowResizeSub,
       fullScreenClick,
+      minimizeClick
     ];
   }
 
@@ -250,6 +261,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     return () => {
       this.setFullSize();
     };
+  }
+
+  minimizeScreenCallBack() {
+    return () => {
+      this.elementsService.hideElement(this.elementReference);
+    }
   }
 
   dragEndCallBack() {
