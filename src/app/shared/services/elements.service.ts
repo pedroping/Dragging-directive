@@ -1,5 +1,5 @@
 import { ElementRef, Injectable, inject } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { DomElementAdpter } from "../adpters/dom-element-adpter";
 import { UtlisFunctions } from "../adpters/ultlis-adpter";
 import { OpenedElement } from "../models/models";
@@ -20,7 +20,8 @@ export class ElementsService {
       opened: true,
       lastPosition: { x: 0, y: 0 },
       isFullScreen: false,
-      closed: closed
+      closed: closed,
+      hideElement$: new Subject<void>()
     };
 
     this.openedElements$.next([...otherElements, newElement]);

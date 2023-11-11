@@ -1,4 +1,5 @@
 import { ElementRef } from "@angular/core";
+import { Subject } from "rxjs";
 
 export interface ElementSizes {
   width: string;
@@ -20,6 +21,11 @@ export interface OpenedElement {
   };
   isFullScreen: boolean,
   closed: boolean;
+  hideElement$: Subject<void>
+}
+
+export interface IExampleBox {
+
 }
 
 export const GAP = 10;
@@ -29,3 +35,4 @@ export const OBSERVE_CONFIG = {
   subtree: true,
 };
 export const DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
+
