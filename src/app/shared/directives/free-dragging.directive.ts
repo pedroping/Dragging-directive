@@ -4,7 +4,9 @@ import {
   Directive,
   ElementRef,
   Input,
+  OnChanges,
   OnDestroy,
+  SimpleChanges,
   inject,
 } from "@angular/core";
 import { Observable, Subject, Subscription, fromEvent } from "rxjs";
@@ -29,7 +31,9 @@ import { FreeDraggingCloseDirective } from "./selectors/free-dragging-close.dire
   selector: "[appFreeDragging]",
   standalone: true,
 })
-export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
+export class FreeDraggingDirective
+  implements AfterViewInit, OnDestroy, OnChanges
+{
   private readonly elementRef = inject(ElementRef);
   private readonly lastZIndexService = inject(LastZIndexService);
   private readonly elementsService = inject(ElementsService);
@@ -39,8 +43,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   @Input() widthDrecrease = 0;
   @Input() baseSizes: ElementSizesNum;
   @Input() startOnMiddle = false;
-  @Input() customX = 0;
-  @Input() customY = 0;
+  @Input() customX;
+  @Input() customY;
   @Input() elementReference: OpenedElement;
 
   @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
@@ -52,7 +56,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   @ContentChild(FreeDraggingMinimizeDirective, { read: ElementRef })
   minimizeScreen: ElementRef;
 
-  @ContentChild(FreeDraggingCloseDirective, { read: ElementRef }) closeScreen: ElementRef
+  @ContentChild(FreeDraggingCloseDirective, { read: ElementRef })
+  closeScreen: ElementRef;
 
   private draggingBoundaryElement: HTMLElement | HTMLBodyElement;
   private subscriptions: Subscription[] = [];
@@ -80,6 +85,12 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     this.startElementDomain();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if ((changes["customX"] || changes["customY"]) && this.element) {
+      this.setCustomStart();
+    }
+  }
+
   startElementDomain() {
     this.element = this.elementRef.nativeElement as HTMLElement;
     this.elementReference.element = this.elementRef;
@@ -105,10 +116,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.minimizeScreen?.nativeElement,
       "click"
     );
-    const closeClick$ = fromEvent(
-      this.closeScreen?.nativeElement,
-      "click"
-    );
+    const closeClick$ = fromEvent(this.closeScreen?.nativeElement, "click");
     const click$ = fromEvent<MouseEvent>(
       this.elementRef.nativeElement,
       "click"
@@ -121,7 +129,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       filter(() => !this.isSettingFullScreen)
     );
 
-    const minimizeClick = minimuzeClick$.subscribe(this.minimizeScreenCallBack());
+    const minimizeClick = minimuzeClick$.subscribe(
+      this.minimizeScreenCallBack()
+    );
     const windowResizeSub = windowResize$.subscribe(this.winResizeCallBack());
     const dragStartSub = dragStart$.subscribe(this.dragStartCallBack(drag$));
     const dragEndSub = dragEnd$.subscribe(this.dragEndCallBack());
@@ -145,7 +155,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       windowResizeSub,
       fullScreenClick,
       minimizeClick,
-      closeSub
+      closeSub,
     ];
   }
 
@@ -227,7 +237,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.initialX = event.clientX - this.currentX;
       this.initialY = event.clientY - this.currentY;
 
-      const newZIndex = this.lastZIndexService.createNewZIndex(this.elementReference.id);
+      const newZIndex = this.lastZIndexService.createNewZIndex(
+        this.elementReference.id
+      );
       this.element.classList.add("free-dragging");
 
       DomElementAdpter.setZIndex(this.element, newZIndex);
@@ -261,8 +273,8 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
 
   closeScreenCallBack() {
     return () => {
-      this.elementReference.hideElement$.next();
-    }
+      this.elementsService.destroyElement$.next(+this.elementReference.id);
+    };
   }
 
   setFullScreenCallBack() {
@@ -274,7 +286,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   minimizeScreenCallBack() {
     return () => {
       this.elementsService.hideElement(this.elementReference);
-    }
+    };
   }
 
   dragEndCallBack() {
@@ -315,7 +327,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         this.currentX = newX;
       }
 
-      const newZIndex = this.lastZIndexService.createNewZIndex(this.elementReference.id);
+      const newZIndex = this.lastZIndexService.createNewZIndex(
+        this.elementReference.id
+      );
       DomElementAdpter.setZIndex(this.element, newZIndex);
       DomElementAdpter.setTransform(this.element, this.currentX, this.currentY);
     };

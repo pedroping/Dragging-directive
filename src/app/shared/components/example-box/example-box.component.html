@@ -1,0 +1,37 @@
+<div
+  class="example-box"
+  appFreeDragging
+  [customX]="90"
+  [customY]="65"
+  [heightDrecrease]="60"
+  [baseSizes]="baseSizes"
+  [elementReference]="elementReference"
+>
+  Page 01
+
+  <div class="handle-move" appFreeDraggingHandle></div>
+
+  <div class="handles">
+    <img
+      src="assets/minimize-screen.png"
+      alt="drag-img"
+      width="24"
+      height="24"
+      appFreeDraggingMinimize
+    />
+    <img
+      src="assets/full-screen.svg"
+      alt="full-screen-image"
+      width="24"
+      height="24"
+      appFreeDraggingSetFullScreen
+    />
+    <img
+      src="assets/close-screen.svg"
+      alt="full-screen-image"
+      width="24"
+      height="24"
+      appFreeDraggingClose
+    />
+  </div>
+</div>

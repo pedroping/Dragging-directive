@@ -8,9 +8,10 @@ import { FreeDraggingCloseDirective } from "./shared/directives/selectors/free-d
 import { FreeDraggingHandleDirective } from "./shared/directives/selectors/free-dragging-handle.directive";
 import { FreeDraggingMinimizeDirective } from "./shared/directives/selectors/free-dragging-minimize.directive";
 import { FreeDraggingSetFullScreenDirective } from "./shared/directives/selectors/free-dragging-set-full-screen.directive";
+import { ExampleBoxComponent } from "./shared/components/example-box/example-box.component";
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, ExampleBoxComponent],
   imports: [
     BrowserModule,
     FreeDraggingDirective,
