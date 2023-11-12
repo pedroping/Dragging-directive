@@ -1,5 +1,5 @@
 import { Directive, HostListener, OnDestroy, OnInit } from "@angular/core";
-import { Subscription, from, fromEvent } from "rxjs";
+import { Subscription, fromEvent } from "rxjs";
 
 @Directive({
   selector: "[appFreeDraggingHandle]",

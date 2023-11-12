@@ -39,7 +39,6 @@ export class FreeDraggingDirective
   private readonly elementsService = inject(ElementsService);
 
   @Input() boundaryQuery = DEFAULT_DRAGGING_BOUNDARY_QUERY;
-  @Input() heightDrecrease = 0;
   @Input() widthDrecrease = 0;
   @Input() baseSizes: ElementSizesNum;
   @Input() startOnMiddle = false;
@@ -75,7 +74,7 @@ export class FreeDraggingDirective
   private currentHeight: string | number = "auto";
 
   ngAfterViewInit(): void {
-    this.draggingBoundaryElement = document.querySelector(this.boundaryQuery);
+    this.draggingBoundaryElement = document.getElementById(this.boundaryQuery);
 
     if (!this.draggingBoundaryElement)
       throw new Error(
@@ -95,6 +94,7 @@ export class FreeDraggingDirective
     this.element = this.elementRef.nativeElement as HTMLElement;
     this.elementReference.element = this.elementRef;
     this.handleElement = this.handle?.nativeElement || this.element;
+    this.element.classList.add("example-box");
     this.initDrag();
     this.setCustomStart();
     this.setSizes();
@@ -197,7 +197,7 @@ export class FreeDraggingDirective
       : `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
     const width = setFullScreen ? window.innerWidth : this.currentWidth;
     const height = setFullScreen
-      ? window.innerHeight - this.heightDrecrease
+      ? this.draggingBoundaryElement.offsetHeight
       : this.currentHeight;
 
     DomElementAdpter.setTransition(this.element);
@@ -237,10 +237,7 @@ export class FreeDraggingDirective
       const maxBoundX =
         this.draggingBoundaryElement.offsetWidth - this.element.offsetWidth;
       const maxBoundY =
-        this.draggingBoundaryElement.offsetHeight -
-        this.heightDrecrease -
-        this.element.offsetHeight +
-        GAP;
+        this.draggingBoundaryElement.offsetHeight - this.element.offsetHeight;
 
       this.initialX = event.clientX - this.currentX;
       this.initialY = event.clientY - this.currentY;
@@ -325,9 +322,9 @@ export class FreeDraggingDirective
 
       if (
         y + this.element.offsetHeight >
-        window.innerHeight - this.heightDrecrease - GAP
+        this.draggingBoundaryElement.offsetHeight - GAP
       ) {
-        const winHeight = window.innerHeight - this.heightDrecrease;
+        const winHeight = this.draggingBoundaryElement.offsetHeight;
         const newY = winHeight - this.element.offsetHeight;
 
         this.currentY = newY;
@@ -358,11 +355,10 @@ export class FreeDraggingDirective
       }
 
       if (
-        this.element.offsetHeight >
-        window.innerHeight - this.heightDrecrease
+        this.element.offsetHeight > this.draggingBoundaryElement.offsetHeight
       ) {
         this.element.style.height =
-          window.innerHeight - this.heightDrecrease + "px";
+          this.draggingBoundaryElement.offsetHeight + "px";
       }
 
       const width = this.element.style.width
@@ -372,7 +368,7 @@ export class FreeDraggingDirective
         ? DomElementAdpter.getNumberFromSize(this.element.style.height)
         : this.baseSizes.height;
       const maxX = window.innerWidth - width;
-      const maxY = window.innerHeight - this.heightDrecrease - height;
+      const maxY = this.draggingBoundaryElement.offsetHeight - height;
 
       this.currentX = Math.max(0, Math.min(this.currentX, maxX));
       this.currentY = Math.max(0, Math.min(this.currentY, maxY));

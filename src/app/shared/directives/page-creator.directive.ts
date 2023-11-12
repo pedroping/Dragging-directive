@@ -2,6 +2,7 @@ import {
   Directive,
   Input,
   OnInit,
+  TemplateRef,
   ViewContainerRef,
   inject
 } from "@angular/core";
@@ -16,12 +17,21 @@ import { ElementsService } from "../services/elements.service";
 export class PageCreatorDirective implements OnInit {
   private readonly elementsService = inject(ElementsService);
   private readonly vcr = inject(ViewContainerRef);
+  private readonly templateRef = inject(TemplateRef);
 
   @Input("appPageCreatorId") id: number | string;
 
   ngOnInit(): void {
-    this.vcr.clear();
+    this.createBoundary();
     this.setSubscriptions();
+  }
+
+  createBoundary() {
+    this.vcr.createEmbeddedView(this.templateRef);
+
+    const element = this.templateRef.elementRef.nativeElement.previousSibling;
+    element.id = "main-boundary";
+    element.classList.add('main-boundary')
   }
 
   setSubscriptions() {

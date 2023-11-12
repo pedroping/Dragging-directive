@@ -1,11 +1,10 @@
 <div
-  class="example-box"
   appFreeDragging
   [customX]="customX"
   [customY]="customY"
   [baseSizes]="baseSizes"
   [startOnMiddle]="startOnMiddle"
-  [heightDrecrease]="heightDrecrease"
+  [boundaryQuery]="'main-boundary'"
   [elementReference]="elementReference"
 >
   Page {{ elementReference.id }}
