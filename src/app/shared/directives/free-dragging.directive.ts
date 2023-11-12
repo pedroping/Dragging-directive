@@ -23,10 +23,10 @@ import {
 } from "../models/models";
 import { ElementsService } from "../services/elements.service";
 import { LastZIndexService } from "../services/last-z-index.service";
-import { FreeDraggingHandleDirective } from "./selectors/free-dragging-handle.directive";
-import { FreeDraggingSetFullScreenDirective } from "./selectors/free-dragging-set-full-screen.directive";
-import { FreeDraggingMinimizeDirective } from "./selectors/free-dragging-minimize.directive";
 import { FreeDraggingCloseDirective } from "./selectors/free-dragging-close.directive";
+import { FreeDraggingHandleDirective } from "./selectors/free-dragging-handle.directive";
+import { FreeDraggingMinimizeDirective } from "./selectors/free-dragging-minimize.directive";
+import { FreeDraggingSetFullScreenDirective } from "./selectors/free-dragging-set-full-screen.directive";
 @Directive({
   selector: "[appFreeDragging]",
   standalone: true,
@@ -97,6 +97,7 @@ export class FreeDraggingDirective
     this.handleElement = this.handle?.nativeElement || this.element;
     this.initDrag();
     this.setCustomStart();
+    this.setSizes();
     if (this.startOnMiddle) this.setToMiddle();
   }
 
@@ -157,6 +158,13 @@ export class FreeDraggingDirective
       minimizeClick,
       closeSub,
     ];
+  }
+
+  setSizes() {
+    this.element.style.width = this.baseSizes.width + "px";
+    this.element.style.height = this.baseSizes.height + "px";
+    this.element.style.minWidth = this.baseSizes.width + "px";
+    this.element.style.minHeight = this.baseSizes.height + "px";
   }
 
   setCustomStart() {
@@ -240,7 +248,7 @@ export class FreeDraggingDirective
       const newZIndex = this.lastZIndexService.createNewZIndex(
         this.elementReference.id
       );
-      
+
       if (!this.isOnFullScreen) this.element.classList.add("free-dragging");
 
       DomElementAdpter.setZIndex(this.element, newZIndex);

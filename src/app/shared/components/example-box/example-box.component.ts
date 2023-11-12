@@ -11,5 +11,10 @@ export class ExampleBoxComponent implements IBaseScreenComponent {
     width: 500,
     height: 200,
   };
+  customX = 90;
+  customY = 65;
+  startOnMiddle = false;
+  heightDrecrease = 60;
+
   elementReference: OpenedElement;
 }

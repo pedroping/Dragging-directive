@@ -1,5 +1,4 @@
 import { ElementRef, Type } from "@angular/core";
-import { Subject } from "rxjs";
 
 export interface ElementSizes {
   width: string;
@@ -20,6 +19,12 @@ export interface OpenedElement {
     y: number;
   };
   isFullScreen: boolean;
+}
+
+export interface CreateComponent {
+  component: Type<IBaseScreenComponent>;
+  id: number;
+  args?: { [propName: string]: any };
 }
 
 export interface IBaseScreenComponent {

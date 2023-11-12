@@ -1,8 +1,8 @@
-import { ElementRef, Injectable, Type, inject } from "@angular/core";
+import { ElementRef, Injectable, inject } from "@angular/core";
 import { BehaviorSubject, Subject } from "rxjs";
 import { DomElementAdpter } from "../adpters/dom-element-adpter";
 import { UtlisFunctions } from "../adpters/ultlis-adpter";
-import { IBaseScreenComponent, OpenedElement } from "../models/models";
+import { CreateComponent, OpenedElement } from "../models/models";
 import { LastZIndexService } from "./last-z-index.service";
 
 @Injectable({
@@ -11,10 +11,7 @@ import { LastZIndexService } from "./last-z-index.service";
 export class ElementsService {
   private readonly lastZIndexService = inject(LastZIndexService);
   openedElements$ = new BehaviorSubject<OpenedElement[]>([]);
-  createElement$ = new Subject<{
-    component: Type<IBaseScreenComponent>;
-    id: number;
-  }>();
+  createElement$ = new Subject<CreateComponent>();
   destroyElement$ = new Subject<number>();
 
   pushElement(element: ElementRef, id: number | string) {
