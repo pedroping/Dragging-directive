@@ -1,10 +1,9 @@
 import {
   Directive,
-  ElementRef,
   Input,
   OnInit,
   ViewContainerRef,
-  inject,
+  inject
 } from "@angular/core";
 import { CreateComponent } from "../models/models";
 import { ElementsService } from "../services/elements.service";
@@ -15,7 +14,6 @@ import { ElementsService } from "../services/elements.service";
   standalone: true,
 })
 export class PageCreatorDirective implements OnInit {
-  private readonly elementRef = inject(ElementRef);
   private readonly elementsService = inject(ElementsService);
   private readonly vcr = inject(ViewContainerRef);
 
