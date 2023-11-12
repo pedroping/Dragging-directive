@@ -240,13 +240,16 @@ export class FreeDraggingDirective
       const newZIndex = this.lastZIndexService.createNewZIndex(
         this.elementReference.id
       );
-      this.element.classList.add("free-dragging");
+      
+      if (!this.isOnFullScreen) this.element.classList.add("free-dragging");
 
       DomElementAdpter.setZIndex(this.element, newZIndex);
 
       this.dragSub = drag$.subscribe((event: MouseEvent) => {
         this.stopTaking$.next();
         event.preventDefault();
+
+        if (this.isOnFullScreen) return;
 
         const x = event.clientX - this.initialX;
         const y = event.clientY - this.initialY;
