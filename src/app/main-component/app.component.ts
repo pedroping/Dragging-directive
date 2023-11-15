@@ -19,7 +19,7 @@ export class AppComponent implements AfterViewInit {
       args: {
         startOnMiddle: true,  
         baseSizes: {
-          width: window.innerWidth / 2,
+          width: window.innerWidth / 2 - 1,
           height: window.innerHeight / 2 - 30,
         },
       },
@@ -30,7 +30,7 @@ export class AppComponent implements AfterViewInit {
       id: 1,
       args: {
         baseSizes: {
-          width: window.innerWidth / 2,
+          width: window.innerWidth / 2 - 1,
           height: window.innerHeight / 2 - 30,
         },
       },
