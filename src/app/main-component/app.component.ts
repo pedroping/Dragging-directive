@@ -9,7 +9,7 @@ import { ExampleBoxComponent } from "../shared/components/example-box/example-bo
 })
 export class AppComponent implements AfterViewInit {
   private readonly elementsService = inject(ElementsService);
-  
+
   title = "angular-free-dragging";
 
   ngAfterViewInit(): void {
@@ -17,7 +17,7 @@ export class AppComponent implements AfterViewInit {
       component: ExampleBoxComponent,
       id: 0,
       args: {
-        startOnMiddle: true,  
+        startOnMiddle: true,
         baseSizes: {
           width: window.innerWidth / 2 - 1,
           height: window.innerHeight / 2 - 30,
@@ -33,6 +33,8 @@ export class AppComponent implements AfterViewInit {
           width: window.innerWidth / 2 - 1,
           height: window.innerHeight / 2 - 30,
         },
+        customY: 90,
+        customX: 60,
       },
     });
 

@@ -96,8 +96,8 @@ export class FreeDraggingDirective
     this.handleElement = this.handle?.nativeElement || this.element;
     this.element.classList.add("example-box");
     this.initDrag();
-    this.setCustomStart();
     this.setSizes();
+    this.setCustomStart();
     if (this.startOnMiddle) this.setToMiddle();
   }
 
@@ -170,7 +170,11 @@ export class FreeDraggingDirective
   setCustomStart() {
     const x = this.customX || this.currentX;
     const y = this.customY || this.currentY;
-    DomElementAdpter.setTransform(this.element, x, y);
+    this.customX = x;
+    this.customY = y;
+    this.initialX = x;
+    this.initialY = y;
+    DomElementAdpter.setTransform(this.element, this.customX, this.customY);
   }
 
   setToMiddle() {
