@@ -11,6 +11,8 @@ export class DomElementAdpter {
   }
 
   static setTransform(element: HTMLElement, x: number, y: number) {
+    console.log("Transform");
+
     element.style.transform = `translate3d(${x}px, ${y}px, 0)`;
   }
 

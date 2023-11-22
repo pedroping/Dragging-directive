@@ -33,8 +33,8 @@ export class AppComponent implements AfterViewInit {
           width: window.innerWidth / 2 - 1,
           height: window.innerHeight / 2 - 30,
         },
-        customY: 90,
-        customX: 60,
+        customY: window.innerHeight * 0.05,
+        customX: window.innerWidth * 0.06,
       },
     });
 
