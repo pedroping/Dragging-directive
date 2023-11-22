@@ -170,23 +170,28 @@ export class FreeDraggingDirective
   setCustomStart() {
     const x = this.customX || 0;
     const y = this.customY || 0;
-    this.customX = x;
-    this.customY = y;
-    this.initialX = x;
-    this.initialY = y;
-    this.currentX = x;
-    this.currentY = y;
-    DomElementAdpter.setTransform(this.element, x, y);
+    const maxBoundX =
+      this.draggingBoundaryElement.offsetWidth - this.element.offsetWidth;
+    const maxBoundY =
+      this.draggingBoundaryElement.offsetHeight - this.element.offsetHeight;
+    this.customX = Math.max(0, Math.min(x, maxBoundX));
+    this.customY = Math.max(0, Math.min(y, maxBoundY));
+    this.setBasePositions(this.customX, this.customY);
+    DomElementAdpter.setTransform(this.element, this.customX, this.customY);
   }
 
   setToMiddle() {
     const x = window.innerWidth / 2 - this.baseSizes.width / 2;
     const y = window.innerHeight / 2 - this.baseSizes.height / 2;
+    this.setBasePositions(x, y);
+    DomElementAdpter.setTransform(this.element, x, y);
+  }
+
+  setBasePositions(x: number, y: number) {
     this.initialX = x;
     this.initialY = y;
     this.currentX = x;
     this.currentY = y;
-    DomElementAdpter.setTransform(this.element, x, y);
   }
 
   setFullSize(setFullScreen = !this.isOnFullScreen) {
