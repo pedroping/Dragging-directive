@@ -7,7 +7,6 @@ import {
   OnChanges,
   OnDestroy,
   SimpleChanges,
-  inject,
 } from "@angular/core";
 import { Observable, Subject, Subscription, fromEvent } from "rxjs";
 import { distinctUntilChanged, filter, takeUntil } from "rxjs/operators";
@@ -34,17 +33,13 @@ import { FreeDraggingSetFullScreenDirective } from "./selectors/free-dragging-se
 export class FreeDraggingDirective
   implements AfterViewInit, OnDestroy, OnChanges
 {
-  private readonly elementRef = inject(ElementRef);
-  private readonly lastZIndexService = inject(LastZIndexService);
-  private readonly elementsService = inject(ElementsService);
-
-  @Input() boundaryQuery = DEFAULT_DRAGGING_BOUNDARY_QUERY;
+  @Input() customX = 0;
+  @Input() customY = 0;
   @Input() widthDrecrease = 0;
-  @Input() baseSizes: ElementSizesNum;
   @Input() startOnMiddle = false;
-  @Input() customX;
-  @Input() customY;
+  @Input() baseSizes: ElementSizesNum;
   @Input() elementReference: OpenedElement;
+  @Input() boundaryQuery = DEFAULT_DRAGGING_BOUNDARY_QUERY;
 
   @ContentChild(FreeDraggingHandleDirective, { read: ElementRef })
   handle: ElementRef;
@@ -58,20 +53,26 @@ export class FreeDraggingDirective
   @ContentChild(FreeDraggingCloseDirective, { read: ElementRef })
   closeScreen: ElementRef;
 
-  private draggingBoundaryElement: HTMLElement | HTMLBodyElement;
-  private subscriptions: Subscription[] = [];
-  private stopTaking$ = new Subject<void>();
-  private handleElement: HTMLElement;
-  private isSettingFullScreen = false;
-  private isOnFullScreen = false;
-  private dragSub: Subscription;
-  private element: HTMLElement;
   private initialX = 0;
   private initialY = 0;
   private currentX = 0;
   private currentY = 0;
+  private element: HTMLElement;
+  private dragSub: Subscription;
+  private isOnFullScreen = false;
+  private handleElement: HTMLElement;
+  private isSettingFullScreen = false;
+  private stopTaking$ = new Subject<void>();
+  private subscriptions: Subscription[] = [];
   private currentWidth: string | number = "auto";
   private currentHeight: string | number = "auto";
+  private draggingBoundaryElement: HTMLElement | HTMLBodyElement;
+
+  constructor(
+    private readonly elementRef: ElementRef,
+    private readonly lastZIndexService: LastZIndexService,
+    private readonly elementsService: ElementsService
+  ) {}
 
   ngAfterViewInit(): void {
     this.draggingBoundaryElement = document.getElementById(this.boundaryQuery);
@@ -168,8 +169,8 @@ export class FreeDraggingDirective
   }
 
   setCustomStart() {
-    const x = this.customX || 0;
-    const y = this.customY || 0;
+    const x = this.customX;
+    const y = this.customY;
     const maxBoundX =
       this.draggingBoundaryElement.offsetWidth - this.element.offsetWidth;
     const maxBoundY =
