@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, inject } from "@angular/core";
-import { ElementsService } from "../shared/services/elements.service";
+import { AfterViewInit, Component } from "@angular/core";
 import { ExampleBoxComponent } from "../shared/components/example-box/example-box.component";
+import { ElementsService } from "../shared/services/elements.service";
 
 @Component({
   selector: "app-root",
@@ -8,9 +8,9 @@ import { ExampleBoxComponent } from "../shared/components/example-box/example-bo
   styleUrls: ["./app.component.scss"],
 })
 export class AppComponent implements AfterViewInit {
-  private readonly elementsService = inject(ElementsService);
-
   title = "angular-free-dragging";
+
+  constructor(private readonly elementsService: ElementsService) {}
 
   ngAfterViewInit(): void {
     this.elementsService.createElement$.next({

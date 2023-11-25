@@ -1,4 +1,4 @@
-import { ElementRef, Injectable, inject } from "@angular/core";
+import { ElementRef, Injectable } from "@angular/core";
 import { BehaviorSubject, Subject } from "rxjs";
 import { DomElementAdpter } from "../adpters/dom-element-adpter";
 import { UtlisFunctions } from "../adpters/ultlis-adpter";
@@ -9,10 +9,11 @@ import { LastZIndexService } from "./last-z-index.service";
   providedIn: "root",
 })
 export class ElementsService {
-  private readonly lastZIndexService = inject(LastZIndexService);
   openedElements$ = new BehaviorSubject<OpenedElement[]>([]);
   createElement$ = new Subject<CreateComponent>();
   destroyElement$ = new Subject<number>();
+
+  constructor(private readonly lastZIndexService: LastZIndexService) {}
 
   pushElement(element: ElementRef, id: number | string) {
     const otherElements = this.openedElements$.value;

@@ -1,10 +1,8 @@
 import {
+  AfterViewInit,
   Directive,
   Input,
-  OnInit,
-  TemplateRef,
-  ViewContainerRef,
-  inject
+  ViewContainerRef
 } from "@angular/core";
 import { CreateComponent } from "../models/models";
 import { ElementsService } from "../services/elements.service";
@@ -14,24 +12,16 @@ import { ElementsService } from "../services/elements.service";
   exportAs: "appPageCreator",
   standalone: true,
 })
-export class PageCreatorDirective implements OnInit {
-  private readonly elementsService = inject(ElementsService);
-  private readonly vcr = inject(ViewContainerRef);
-  private readonly templateRef = inject(TemplateRef);
-
+export class PageCreatorDirective implements AfterViewInit {
   @Input("appPageCreatorId") id: number | string;
 
-  ngOnInit(): void {
-    this.createBoundary();
+  constructor(
+    private readonly elementsService: ElementsService,
+    private readonly vcr: ViewContainerRef
+  ) {}
+
+  ngAfterViewInit(): void {
     this.setSubscriptions();
-  }
-
-  createBoundary() {
-    this.vcr.createEmbeddedView(this.templateRef);
-
-    const element = this.templateRef.elementRef.nativeElement.previousSibling;
-    element.id = "main-boundary";
-    element.classList.add('main-boundary')
   }
 
   setSubscriptions() {

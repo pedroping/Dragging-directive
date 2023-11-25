@@ -1,8 +1,8 @@
-import { Component, OnInit, inject } from "@angular/core";
-import { ElementsService } from "../../services/elements.service";
+import { CommonModule } from "@angular/common";
+import { Component, OnInit } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { OpenedElement } from "../../models/models";
-import { CommonModule } from "@angular/common";
+import { ElementsService } from "../../services/elements.service";
 
 @Component({
   selector: "app-page-controls",
@@ -12,9 +12,9 @@ import { CommonModule } from "@angular/common";
   imports: [CommonModule],
 })
 export class PageControlsComponent implements OnInit {
-  private readonly elementsService = inject(ElementsService)
-
   openedElements$: BehaviorSubject<OpenedElement[]>;
+
+  constructor(private readonly elementsService: ElementsService) {}
 
   ngOnInit() {
     this.openedElements$ = this.elementsService.openedElements$;

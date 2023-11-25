@@ -37,4 +37,5 @@ export const OBSERVE_CONFIG = {
   childList: true,
   subtree: true,
 };
-export const DEFAULT_DRAGGING_BOUNDARY_QUERY = "html";
+export const DEFAULT_DRAGGING_BOUNDARY_QUERY = "main-boundary";
+export const HEIGHT_DECREASE = 60;

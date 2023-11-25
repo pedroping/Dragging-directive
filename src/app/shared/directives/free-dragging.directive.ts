@@ -4,9 +4,7 @@ import {
   Directive,
   ElementRef,
   Input,
-  OnChanges,
-  OnDestroy,
-  SimpleChanges,
+  OnDestroy
 } from "@angular/core";
 import { Observable, Subject, Subscription, fromEvent } from "rxjs";
 import { distinctUntilChanged, filter, takeUntil } from "rxjs/operators";
@@ -17,6 +15,7 @@ import {
   ElementSizes,
   ElementSizesNum,
   GAP,
+  HEIGHT_DECREASE,
   OBSERVE_CONFIG,
   OpenedElement,
 } from "../models/models";
@@ -30,9 +29,7 @@ import { FreeDraggingSetFullScreenDirective } from "./selectors/free-dragging-se
   selector: "[appFreeDragging]",
   standalone: true,
 })
-export class FreeDraggingDirective
-  implements AfterViewInit, OnDestroy, OnChanges
-{
+export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   @Input() customX = 0;
   @Input() customY = 0;
   @Input() widthDrecrease = 0;
@@ -83,12 +80,6 @@ export class FreeDraggingDirective
       );
 
     this.startElementDomain();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if ((changes["customX"] || changes["customY"]) && this.element) {
-      this.setCustomStart();
-    }
   }
 
   startElementDomain() {
@@ -171,10 +162,12 @@ export class FreeDraggingDirective
   setCustomStart() {
     const x = this.customX;
     const y = this.customY;
+    const mainBoundaryHeight = window.innerHeight - HEIGHT_DECREASE;
     const maxBoundX =
-      this.draggingBoundaryElement.offsetWidth - this.element.offsetWidth;
+      this.draggingBoundaryElement.offsetWidth - this.baseSizes.width;
     const maxBoundY =
-      this.draggingBoundaryElement.offsetHeight - this.element.offsetHeight;
+      (this.draggingBoundaryElement.offsetHeight || mainBoundaryHeight) -
+      this.baseSizes.height;
     this.customX = Math.max(0, Math.min(x, maxBoundX));
     this.customY = Math.max(0, Math.min(y, maxBoundY));
     this.setBasePositions(this.customX, this.customY);
