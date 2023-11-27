@@ -28,6 +28,13 @@ export interface CreateComponent {
 }
 
 export interface IBaseScreenComponent {
+  customX: number;
+  customY: number;
+  startOnMiddle: boolean;
+  baseSizes: {
+    width: number;
+    height: number;
+  };
   elementReference: OpenedElement;
 }
 
