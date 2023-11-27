@@ -4,7 +4,7 @@ import {
   Directive,
   ElementRef,
   Input,
-  OnDestroy
+  OnDestroy,
 } from "@angular/core";
 import { Observable, Subject, Subscription, fromEvent } from "rxjs";
 import { distinctUntilChanged, filter, takeUntil } from "rxjs/operators";
@@ -32,7 +32,6 @@ import { FreeDraggingSetFullScreenDirective } from "./selectors/free-dragging-se
 export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
   @Input() customX = 0;
   @Input() customY = 0;
-  @Input() widthDrecrease = 0;
   @Input() startOnMiddle = false;
   @Input() baseSizes: ElementSizesNum;
   @Input() elementReference: OpenedElement;
@@ -163,11 +162,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     const x = this.customX;
     const y = this.customY;
     const mainBoundaryHeight = window.innerHeight - HEIGHT_DECREASE;
-    const maxBoundX =
-      this.draggingBoundaryElement.offsetWidth - this.baseSizes.width;
-    const maxBoundY =
-      (this.draggingBoundaryElement.offsetHeight || mainBoundaryHeight) -
-      this.baseSizes.height;
+    const mainBoudndaryWidth = window.innerHeight;
+    const maxBoundX = mainBoudndaryWidth - this.baseSizes.width;
+    const maxBoundY = mainBoundaryHeight - this.baseSizes.height;
     this.customX = Math.max(0, Math.min(x, maxBoundX));
     this.customY = Math.max(0, Math.min(y, maxBoundY));
     this.setBasePositions(this.customX, this.customY);

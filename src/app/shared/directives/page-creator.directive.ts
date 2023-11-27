@@ -2,7 +2,7 @@ import {
   AfterViewInit,
   Directive,
   Input,
-  ViewContainerRef
+  ViewContainerRef,
 } from "@angular/core";
 import { CreateComponent } from "../models/models";
 import { ElementsService } from "../services/elements.service";
@@ -58,9 +58,10 @@ export class PageCreatorDirective implements AfterViewInit {
   };
 
   destroyElementCallBack = (id: number) => {
-    const openedElements = this.elementsService.openedElements;
-    const index = openedElements.findIndex((item) => item.id == id);
-    openedElements.splice(index, 1);
-    this.vcr.remove(id);
+    const elements = this.elementsService.openedElements;
+    const index = elements.findIndex((item) => item.id == id);
+    const filteredOpenedElements = elements.filter((item) => item.id != id);
+    this.elementsService.openedElements$.next(filteredOpenedElements);
+    this.vcr.remove(index);
   };
 }
