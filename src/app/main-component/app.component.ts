@@ -1,5 +1,10 @@
 import { AfterViewInit, Component } from "@angular/core";
-import { ExampleBoxComponent } from "../shared/components/example-box/example-box.component";
+import {
+  CreateComponent,
+  PAGE00,
+  PAGE01,
+  PAGE02,
+} from "../shared/models/models";
 import { ElementsService } from "../shared/services/elements.service";
 
 @Component({
@@ -10,38 +15,19 @@ import { ElementsService } from "../shared/services/elements.service";
 export class AppComponent implements AfterViewInit {
   title = "angular-free-dragging";
 
+  page00 = PAGE00;
+  page01 = PAGE01;
+  page02 = PAGE02;
+
   constructor(private readonly elementsService: ElementsService) {}
 
   ngAfterViewInit(): void {
-    this.elementsService.createElement$.next({
-      component: ExampleBoxComponent,
-      id: 0,
-      args: {
-        startOnMiddle: true,
-        baseSizes: {
-          width: window.innerWidth / 2 - 1,
-          height: window.innerHeight / 2 - 30,
-        },
-      },
-    });
+    this.elementsService.createElement$.next(this.page00);
+    this.elementsService.createElement$.next(this.page01);
+    this.elementsService.createElement$.next(this.page02);
+  }
 
-    this.elementsService.createElement$.next({
-      component: ExampleBoxComponent,
-      id: 1,
-      args: {
-        baseSizes: {
-          width: window.innerWidth / 2 - 1,
-          height: window.innerHeight / 2 - 30,
-        },
-        customY: window.innerHeight * 0.05,
-        customX: window.innerWidth * 0.06,
-      },
-    });
-
-    this.elementsService.createElement$.next({
-      component: ExampleBoxComponent,
-      id: 2,
-      args: { customX: 890, customY: 750 },
-    });
+  handleElementClick(element: CreateComponent) {
+    this.elementsService.handlePageUrl(element);
   }
 }

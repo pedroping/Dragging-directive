@@ -1,4 +1,14 @@
-<div id="main-boundary" appPageCreator></div>
+<div id="main-boundary" appPageCreator>
+  <div class="page-url" (click)="handleElementClick(page00)">
+    <span>Page 0</span>
+  </div>
+  <div class="page-url" (click)="handleElementClick(page01)">
+    <span>Page 1</span>
+  </div>
+  <div class="page-url" (click)="handleElementClick(page02)">
+    <span>Page 2</span>
+  </div>
+</div>
 
 <footer>
   <app-page-controls></app-page-controls>

@@ -29,6 +29,12 @@ export class ElementsService {
     return newElement;
   }
 
+  handlePageUrl(element: CreateComponent) {
+    const hasElement = this.findElement(element.id);
+    if (!hasElement) return this.createElement$.next(element);
+    this.handleElementClick(element.id);
+  }
+
   handleElementClick(id: number | string) {
     const element = this.findElement(id);
     if (!element) return;

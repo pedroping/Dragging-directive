@@ -151,6 +151,13 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     ];
   }
 
+  setZIndex() {
+    const newZIndex = this.lastZIndexService.createNewZIndex(
+      this.elementReference.id
+    );
+    DomElementAdpter.setZIndex(this.element, newZIndex);
+  }
+
   setSizes() {
     this.element.style.width = this.baseSizes.width + "px";
     this.element.style.height = this.baseSizes.height + "px";
@@ -248,13 +255,9 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.initialX = event.clientX - this.currentX;
       this.initialY = event.clientY - this.currentY;
 
-      const newZIndex = this.lastZIndexService.createNewZIndex(
-        this.elementReference.id
-      );
-
       if (!this.isOnFullScreen) this.element.classList.add("free-dragging");
 
-      DomElementAdpter.setZIndex(this.element, newZIndex);
+      this.setZIndex();
 
       this.dragSub = drag$.subscribe((event: MouseEvent) => {
         this.stopTaking$.next();
@@ -341,10 +344,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
         this.currentX = newX;
       }
 
-      const newZIndex = this.lastZIndexService.createNewZIndex(
-        this.elementReference.id
-      );
-      DomElementAdpter.setZIndex(this.element, newZIndex);
+      this.setZIndex();
       DomElementAdpter.setTransform(this.element, this.currentX, this.currentY);
     };
   }

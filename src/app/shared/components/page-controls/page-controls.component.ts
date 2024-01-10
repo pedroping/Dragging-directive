@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { Observable, map } from "rxjs";
 import { OpenedElement } from "../../models/models";
 import { ElementsService } from "../../services/elements.service";
 
@@ -12,12 +12,18 @@ import { ElementsService } from "../../services/elements.service";
   imports: [CommonModule],
 })
 export class PageControlsComponent implements OnInit {
-  openedElements$: BehaviorSubject<OpenedElement[]>;
+  openedElements$: Observable<OpenedElement[]>;
 
   constructor(private readonly elementsService: ElementsService) {}
 
   ngOnInit() {
-    this.openedElements$ = this.elementsService.openedElements$;
+    this.openedElements$ = this.elementsService.openedElements$
+      .asObservable()
+      .pipe(
+        map((elements) => {
+          return elements.sort((a, b) => (a.id < b.id ? -1 : 1));
+        })
+      );
   }
 
   handleElementClick(id: string | number) {
