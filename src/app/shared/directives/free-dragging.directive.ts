@@ -322,30 +322,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
     return () => {
       this.isOnFullScreen = false;
       this.elementReference.isFullScreen = this.isOnFullScreen;
-
-      const { x, y } = DomElementAdpter.getTransformValues(
-        this.element.style.transform
-      );
-      this.currentX = x;
-      this.currentY = y;
-
-      if (
-        y + this.element.offsetHeight >
-        this.draggingBoundaryElement.offsetHeight - GAP
-      ) {
-        const winHeight = this.draggingBoundaryElement.offsetHeight;
-        const newY = winHeight - this.element.offsetHeight;
-
-        this.currentY = newY;
-      }
-
-      if (x + this.element.offsetWidth > window.innerWidth - GAP * 2) {
-        const newX = window.innerWidth - this.element.offsetWidth;
-        this.currentX = newX;
-      }
-
       this.setZIndex();
-      DomElementAdpter.setTransform(this.element, this.currentX, this.currentY);
     };
   }
 
