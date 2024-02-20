@@ -14,10 +14,9 @@ import {
   DEFAULT_DRAGGING_BOUNDARY_QUERY,
   ElementSizes,
   ElementSizesNum,
-  GAP,
   HEIGHT_DECREASE,
   OBSERVE_CONFIG,
-  OpenedElement,
+  OpenedElement
 } from "../models/models";
 import { ElementsService } from "../services/elements.service";
 import { LastZIndexService } from "../services/last-z-index.service";
@@ -25,6 +24,7 @@ import { FreeDraggingCloseDirective } from "./selectors/free-dragging-close.dire
 import { FreeDraggingHandleDirective } from "./selectors/free-dragging-handle.directive";
 import { FreeDraggingMinimizeDirective } from "./selectors/free-dragging-minimize.directive";
 import { FreeDraggingSetFullScreenDirective } from "./selectors/free-dragging-set-full-screen.directive";
+
 @Directive({
   selector: "[appFreeDragging]",
   standalone: true,
