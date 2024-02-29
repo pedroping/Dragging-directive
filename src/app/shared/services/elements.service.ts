@@ -73,7 +73,7 @@ export class ElementsService {
     const { x, y } = DomElementAdpter.getTransformValues(
       domElement.style.transform
     );
-    const isHiggerElement = element.id == this.higgestElementId();
+    const isHiggerElement = element.id == this.higgestElementId;
 
     const isOnlyElement = this.openedElements
       .filter((item) => item != element)
@@ -133,7 +133,7 @@ export class ElementsService {
     return this.openedElements$.value;
   }
 
-  higgestElementId() {
+  get higgestElementId() {
     const idsAndZIndez = this.openedElements
       .filter((item) => !!item.opened)
       .map((item) => ({
