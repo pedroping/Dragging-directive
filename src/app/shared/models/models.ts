@@ -46,6 +46,7 @@ export const OBSERVE_CONFIG = {
   subtree: true,
 };
 export const DEFAULT_DRAGGING_BOUNDARY_QUERY = "main-boundary";
+export const FREE_DRAGGING_CLASS = "free-dragging";
 export const HEIGHT_DECREASE = 60;
 
 export const PAGE00 = {

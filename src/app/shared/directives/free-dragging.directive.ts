@@ -14,9 +14,10 @@ import {
   DEFAULT_DRAGGING_BOUNDARY_QUERY,
   ElementSizes,
   ElementSizesNum,
+  FREE_DRAGGING_CLASS,
   HEIGHT_DECREASE,
   OBSERVE_CONFIG,
-  OpenedElement
+  OpenedElement,
 } from "../models/models";
 import { ElementsService } from "../services/elements.service";
 import { LastZIndexService } from "../services/last-z-index.service";
@@ -255,7 +256,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.initialX = event.clientX - this.currentX;
       this.initialY = event.clientY - this.currentY;
 
-      if (!this.isOnFullScreen) this.element.classList.add("free-dragging");
+      if (!this.isOnFullScreen) this.element.classList.add(FREE_DRAGGING_CLASS);
 
       this.setZIndex();
 
@@ -311,7 +312,7 @@ export class FreeDraggingDirective implements AfterViewInit, OnDestroy {
       this.initialX = this.currentX;
       this.initialY = this.currentY;
       this.stopTaking$.next();
-      this.element.classList.remove("free-dragging");
+      this.element.classList.remove(FREE_DRAGGING_CLASS);
       if (this.dragSub) {
         this.dragSub.unsubscribe();
       }

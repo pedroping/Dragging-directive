@@ -1,11 +1,7 @@
-import { Directive } from '@angular/core';
+import { Directive } from "@angular/core";
 
 @Directive({
-  selector: '[appFreeDraggingClose]',
-  standalone: true
+  selector: "[appFreeDraggingClose]",
+  standalone: true,
 })
-export class FreeDraggingCloseDirective {
-
-  constructor() { }
-
-}
+export class FreeDraggingCloseDirective {}

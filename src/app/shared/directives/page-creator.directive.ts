@@ -50,17 +50,17 @@ export class PageCreatorDirective implements AfterViewInit {
       this.lastZIndexService.createNewZIndex(element.id)
     );
 
-    if (item.args) {
-      const args = item.args;
-      const keys = Object.keys(args);
+    if (!item.args) return;
 
-      keys.forEach((key) => {
-        if (compRef.instance[key] == undefined)
-          throw new Error(`Key ${key} dosen't exist on your component`);
+    const args = item.args;
+    const keys = Object.keys(args);
 
-        compRef.instance[key] = args[key];
-      });
-    }
+    keys.forEach((key) => {
+      if (compRef.instance[key] == undefined)
+        throw new Error(`Key ${key} dosen't exist on your component`);
+
+      compRef.instance[key] = args[key];
+    });
   };
 
   destroyElementCallBack = (id: number) => {

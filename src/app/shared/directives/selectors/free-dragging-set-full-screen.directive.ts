@@ -2,8 +2,6 @@ import { Directive } from "@angular/core";
 
 @Directive({
   selector: "[appFreeDraggingSetFullScreen]",
-  standalone: true
+  standalone: true,
 })
-export class FreeDraggingSetFullScreenDirective {
-  constructor() { }
-}
+export class FreeDraggingSetFullScreenDirective {}
