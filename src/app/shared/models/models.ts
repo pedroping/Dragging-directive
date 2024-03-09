@@ -39,6 +39,12 @@ export interface IBaseScreenComponent {
   elementReference: OpenedElement;
 }
 
+export interface IComponentModel {
+  id: number;
+  component: Type<IBaseScreenComponent>;
+  args: Partial<IBaseScreenComponent>;
+}
+
 export const GAP = 10;
 export const OBSERVE_CONFIG = {
   attributes: true,
@@ -49,7 +55,7 @@ export const DEFAULT_DRAGGING_BOUNDARY_QUERY = "main-boundary";
 export const FREE_DRAGGING_CLASS = "free-dragging";
 export const HEIGHT_DECREASE = 60;
 
-export const PAGE00 = {
+export const PAGE00: IComponentModel = {
   component: ExampleBoxComponent,
   id: 0,
   args: {
@@ -60,7 +66,7 @@ export const PAGE00 = {
     },
   },
 };
-export const PAGE01 = {
+export const PAGE01: IComponentModel = {
   component: ExampleBoxComponent,
   id: 1,
   args: {
@@ -72,7 +78,8 @@ export const PAGE01 = {
     customX: window.innerWidth * 0.06,
   },
 };
-export const PAGE02 = {
+
+export const PAGE02: IComponentModel = {
   component: ExampleBoxComponent,
   id: 2,
   args: { customX: 890, customY: 750 },
