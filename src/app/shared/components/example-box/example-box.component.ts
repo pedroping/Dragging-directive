@@ -1,5 +1,6 @@
-import { Component } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { IBaseScreenComponent, OpenedElement } from "../../models/models";
+import { testToken } from "../../directives/page-creator.directive";
 
 @Component({
   selector: "app-example-box",
@@ -15,4 +16,8 @@ export class ExampleBoxComponent implements IBaseScreenComponent {
   customY = 0;
   startOnMiddle = false;
   elementReference: OpenedElement;
+
+  constructor(@Inject(testToken) private teste: string) {
+    console.log(this.teste);
+  }
 }

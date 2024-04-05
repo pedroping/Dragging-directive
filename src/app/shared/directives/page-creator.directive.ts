@@ -1,6 +1,8 @@
 import {
   AfterViewInit,
   Directive,
+  InjectionToken,
+  Injector,
   Input,
   ViewContainerRef,
 } from "@angular/core";
@@ -8,6 +10,8 @@ import { CreateComponent } from "../models/models";
 import { ElementsService } from "../services/elements.service";
 import { DomElementAdpter } from "../adpters/dom-element-adpter";
 import { LastZIndexService } from "../services/last-z-index.service";
+
+export const testToken = new InjectionToken<string>("testToken");
 
 @Directive({
   selector: "[appPageCreator]",
@@ -18,6 +22,7 @@ export class PageCreatorDirective implements AfterViewInit {
   @Input("appPageCreatorId") id: number | string;
 
   constructor(
+    private readonly injector: Injector,
     private readonly vcr: ViewContainerRef,
     private readonly elementsService: ElementsService,
     private readonly lastZIndexService: LastZIndexService
@@ -38,8 +43,13 @@ export class PageCreatorDirective implements AfterViewInit {
   }
 
   createElementCallBack = (item: CreateComponent) => {
+    const injector = Injector.create({
+      providers: [{ provide: testToken, useValue: "teste1" }],
+      parent: this.injector,
+    });
     const compRef = this.vcr.createComponent(item.component, {
       index: item.id,
+      injector: injector,
     });
     const elementRef = compRef.location.nativeElement.firstChild;
     const element = this.elementsService.pushElement(elementRef, item.id);
