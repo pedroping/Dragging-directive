@@ -6,10 +6,8 @@
   [startOnMiddle]="startOnMiddle"
   [elementReference]="elementReference"
 >
-  Page {{ elementReference.id }}
-
+  <div [pageContentCreator]="pageContent"></div>
   <div class="handle-move" appFreeDraggingHandle></div>
-
   <div class="handles">
     <img
       src="assets/minimize-screen.png"

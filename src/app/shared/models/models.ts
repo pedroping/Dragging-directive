@@ -1,5 +1,5 @@
 import { ElementRef, Type } from "@angular/core";
-import { ExampleBoxComponent } from "../components/example-box/example-box.component";
+import { PageContentComponent } from "../components/page-content/page-content.component";
 
 export interface ElementSizes {
   width: string;
@@ -23,7 +23,6 @@ export interface OpenedElement {
 }
 
 export interface CreateComponent {
-  component: Type<IBaseScreenComponent>;
   id: number;
   args?: { [propName: string]: any };
 }
@@ -37,11 +36,11 @@ export interface IBaseScreenComponent {
     height: number;
   };
   elementReference: OpenedElement;
+  pageContent: Type<unknown>;
 }
 
 export interface IComponentModel {
   id: number;
-  component: Type<IBaseScreenComponent>;
   args: Partial<IBaseScreenComponent>;
 }
 
@@ -56,7 +55,6 @@ export const FREE_DRAGGING_CLASS = "free-dragging";
 export const HEIGHT_DECREASE = 60;
 
 export const PAGE00: IComponentModel = {
-  component: ExampleBoxComponent,
   id: 0,
   args: {
     startOnMiddle: true,
@@ -64,10 +62,10 @@ export const PAGE00: IComponentModel = {
       width: window.innerWidth / 2 - 1,
       height: window.innerHeight / 2 - 30,
     },
+    pageContent: PageContentComponent,
   },
 };
 export const PAGE01: IComponentModel = {
-  component: ExampleBoxComponent,
   id: 1,
   args: {
     baseSizes: {
@@ -76,11 +74,11 @@ export const PAGE01: IComponentModel = {
     },
     customY: window.innerHeight * 0.05,
     customX: window.innerWidth * 0.06,
+    pageContent: PageContentComponent,
   },
 };
 
 export const PAGE02: IComponentModel = {
-  component: ExampleBoxComponent,
   id: 2,
-  args: { customX: 890, customY: 750 },
+  args: { customX: 890, customY: 750, pageContent: PageContentComponent },
 };
